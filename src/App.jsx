@@ -1,18 +1,19 @@
 import { useState, useEffect } from "react";
 import { initializeApp } from "firebase/app";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "firebase/auth";
-import { getFirestore, collection, addDoc, getDocs, query, orderBy, serverTimestamp } from "firebase/firestore";
+import { getFirestore, collection, addDoc, getDocs, query, orderBy, serverTimestamp, doc, setDoc, getDoc, increment, updateDoc } from "firebase/firestore";
 
 /* ═══════════════════════════════════════════════════════════════════
    ANÁLISIS — Plataforma de análisis crítico literario
-   VERSIÓN REDUCIDA + FIREBASE
+   VERSIÓN 3.0
    
-   CAMBIOS en esta versión:
-   - Solo 2 libros (1984 + Rebelión en la granja - ambos de Orwell)
-   - Firebase integrado: login + debates reales
-   - Sin pestaña global de debates (están dentro de cada libro)
-   - Feedback menos "examen", más conversacional
-   - 1 argumento de muestra firmado "Joshua Walteros, 17"
+   NUEVAS FEATURES:
+   - Fragmentos largos expandibles
+   - Preguntas de subrayado
+   - Flashcards de repaso
+   - Estadísticas globales en Firebase
+   - Foros informales por libro
+   - Racha y progreso sincronizados en Firebase
    ═══════════════════════════════════════════════════════════════════ */
 
 // ───────────────── FIREBASE CONFIG ─────────────────
@@ -30,7 +31,7 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-/* ───────────────── DATOS DE LOS LIBROS (solo Orwell) ───────────────── */
+/* ───────────────── DATOS DE LOS LIBROS ───────────────── */
 const BOOKS = [
   {
     id: "1984",
@@ -51,36 +52,49 @@ const BOOKS = [
           "Fue eliminado antes de que comience la historia",
         ],
         correct: 0,
-        feedback: "Exacto. El Gran Hermano no necesita existir físicamente: su poder reside en ser un símbolo absoluto. Una persona real puede morir. Una idea no.",
-        feedbackAlt: "Otra lectura posible: Orwell construye al Gran Hermano como símbolo, no como persona. El poder no está en un individuo sino en la idea misma, que no puede eliminarse matando a alguien."
+        feedback: "Exacto. El Gran Hermano no necesita existir físicamente: su poder reside en ser un símbolo absoluto.",
+        feedbackAlt: "Otra lectura posible: Orwell construye al Gran Hermano como símbolo, no como persona."
       },
       {
-        mode: "critical",
-        concept: "Naturaleza del poder",
-        text: "¿Qué distingue filosóficamente al Partido de otros totalitarismos según O'Brien?",
+        mode: "fragment",
+        concept: "Neolengua y control",
+        text: "Lee el fragmento y responde: ¿Cuál es el propósito real de la Neolengua según Syme?",
+        fragment: `—No comprendes la belleza de la destrucción de las palabras. ¿Sabes que la Neolengua es el único idioma del mundo cuyo vocabulario disminuye cada año? [...] ¿No ves que la finalidad de la Neolengua es limitar el alcance del pensamiento, estrechar el radio de acción de la mente? Al final acabaremos haciendo imposible todo crimen del pensamiento. En realidad no habrá pensamiento, tal como ahora lo entendemos. Ortodoxia es no pensar, no necesitar pensar. Ortodoxia es inconsciencia.`,
         options: [
-          "Usa tecnología más avanzada para vigilar",
-          "Busca el poder puro y exige amor genuino, no solo obediencia",
-          "Permite más libertad económica que otros sistemas",
-          "Tiene un enemigo externo real que justifica sus medidas",
+          "Hacer el idioma más eficiente y fácil de aprender",
+          "Destruir la posibilidad misma de pensar críticamente",
+          "Simplificar la comunicación entre ciudadanos",
+          "Crear un idioma universal para Oceanía",
         ],
         correct: 1,
-        feedback: "Bien visto. Los totalitarismos anteriores perseguían objetivos externos. El Partido persigue solo el poder. Y no le basta la obediencia exterior: necesita el amor genuino del súbdito.",
-        feedbackAlt: "Otra lectura: O'Brien explica que el Partido no tortura para reformar o castigar, sino para que Winston ame genuinamente al Gran Hermano antes de morir. Eso lo hace filosóficamente más radical que cualquier régimen basado solo en fuerza."
+        feedback: "Bien visto. La Neolengua no es simplificación lingüística sino aniquilación del pensamiento crítico.",
+        feedbackAlt: "Otra perspectiva: Orwell muestra que el lenguaje no solo expresa pensamiento sino que lo hace posible."
       },
       {
-        mode: "context",
-        text: "¿Qué revela Winston sobre el control del pasado?",
-        fragment: "El pasado no solo se ha cambiado, sino que ha sido destruido. ¿Cómo puedes establecer el mayor de los hechos cuando no queda ni siquiera un registro fuera de tu propia memoria?",
-        options: [
-          "Winston tiene problemas personales de memoria",
-          "El control del pasado equivale al control total de la realidad",
-          "Los archivos del Partido son simplemente ineficientes",
-          "La gente en Oceanía era naturalmente olvidadiza",
-        ],
-        correct: 1,
-        feedback: "Exacto. Quien controla el pasado controla el presente. Sin memoria colectiva, no hay base material para la resistencia.",
-        feedbackAlt: "Otra perspectiva: Orwell muestra que sin registros externos, la realidad se vuelve completamente maleable. El Partido no solo miente sobre el pasado: lo destruye materialmente."
+        mode: "highlight",
+        concept: "Momento de quiebre",
+        text: "Subraya la frase que mejor captura el momento en que Winston pierde definitivamente su humanidad:",
+        fragment: `Miró el retrato. Era impensable que pudiera ser vencido: contra el Gran Hermano no había apelación posible. Contempló los enormes ojos. Dos lágrimas perfumadas de ginebra le resbalaron por las mejillas. Pero ahora todo iba bien, todo estaba bien, la lucha había terminado. Había obtenido la victoria sobre sí mismo. Amaba al Gran Hermano.`,
+        correctHighlight: "Amaba al Gran Hermano",
+        feedback: "Exacto. Esa frase final es el colapso total: no solo obedece, genuinamente ama a su opresor.",
+        feedbackAlt: "Fíjate en 'Había obtenido la victoria sobre sí mismo' — irónico, porque la 'victoria' es su destrucción."
+      },
+    ],
+    flashcards: [
+      {
+        id: "fc1",
+        front: "¿Qué significa 'doblepensar' en 1984?",
+        back: "Sostener dos creencias contradictorias simultáneamente y aceptar ambas."
+      },
+      {
+        id: "fc2",
+        front: "¿Cuál es el lema del Partido?",
+        back: "Guerra es Paz. Libertad es Esclavitud. Ignorancia es Fuerza."
+      },
+      {
+        id: "fc3",
+        front: "¿Qué representa Julia en contraste con Winston?",
+        back: "Rebelión práctica y sensual vs rebelión intelectual y política."
       },
     ],
     debatePrompts: [
@@ -90,6 +104,7 @@ const BOOKS = [
         context: "Al final Winston ama al Gran Hermano. ¿Eso anula todo lo que hizo antes o lo vuelve más trágico?",
       },
     ],
+    forumId: "1984-forum",
   },
 
   {
@@ -112,35 +127,48 @@ const BOOKS = [
         ],
         correct: 1,
         feedback: "Bien leído. Los animales ya no pueden distinguir cerdos de humanos. El problema no era quién gobernaba sino la estructura del poder mismo.",
-        feedbackAlt: "Otra interpretación: Orwell cierra la alegoría mostrando que la revolución no transformó el sistema, solo cambió quién lo operaba. Los nuevos gobernantes reproducen exactamente los métodos de los viejos."
+        feedbackAlt: "Otra interpretación: Orwell cierra la alegoría mostrando que la revolución no transformó el sistema."
       },
       {
-        mode: "context",
-        text: "¿Qué revela el fragmento sobre Squealer?",
-        fragment: "Squealer podía convertir el negro en blanco. Siempre había una explicación, siempre había estadísticas, siempre había una razón por la que lo que parecía una traición era en realidad necesario para la seguridad de la granja.",
+        mode: "fragment",
+        concept: "Propaganda",
+        text: "Lee el fragmento. ¿Qué técnica de manipulación usa Squealer?",
+        fragment: `Los cerdos no se reservaban la leche y las manzanas para ellos (egoísmo), sino para preservar su salud. —Camaradas —gritó Squealer—, espero que aprecien que nosotros los cerdos hacemos esto en un espíritu de sacrificio. Muchos de nosotros en realidad no nos gusta la leche y las manzanas. A mí no me gustan. Nuestro único objetivo al tomar estas cosas es preservar nuestra salud. La leche y las manzanas (esto ha sido probado por la Ciencia, camaradas) contienen sustancias absolutamente necesarias para el bienestar de un cerdo. Nosotros los cerdos somos trabajadores cerebrales.`,
         options: [
-          "Squealer es un científico que estudia el comportamiento",
-          "Squealer representa la propaganda que legitima cada abuso del poder",
-          "Squealer actúa de buena fe genuinamente",
-          "Squealer es simplemente el más inteligente",
+          "Apelar a la ciencia falsa y presentar el privilegio como sacrificio",
+          "Usar amenazas directas para obtener obediencia",
+          "Ofrecer recompensas a cambio de silencio",
+          "Demostrar superioridad física sobre otros animales",
         ],
-        correct: 1,
-        feedback: "Exacto. Squealer es la propaganda institucionalizada. Todo régimen totalitario necesita su Squealer: quien hace el trabajo sucio del lenguaje.",
-        feedbackAlt: "Otra lectura: Orwell personifica en Squealer la capacidad del poder de reescribir la realidad usando estadísticas, miedo y agotamiento del oyente. No necesita ser verdad: solo necesita ser repetido."
+        correct: 0,
+        feedback: "Exacto. Squealer invierte víctima y victimario: los cerdos no roban, 'se sacrifican' tomando privilegios.",
+        feedbackAlt: "Fíjate en la apelación a 'la Ciencia' — autoridad abstracta que no puede cuestionarse."
       },
       {
-        mode: "critical",
-        concept: "Imagen final",
-        text: "¿Qué demuestra que los animales no puedan distinguir cerdos de humanos?",
-        options: [
-          "El éxito evolutivo biológico de los cerdos",
-          "Que la corrupción fue tan completa que el régimen resultante es idéntico al derrocado",
-          "Que los humanos aceptaron a los cerdos como iguales",
-          "Que la memoria de los animales se deterioró",
-        ],
-        correct: 1,
-        feedback: "Bien visto. La revolución no transformó el sistema, solo cambió quién lo operaba. Los nuevos gobernantes reproducen exactamente los métodos y la mentalidad de los viejos.",
-        feedbackAlt: "Otra perspectiva: Orwell construye esta imagen como la más poderosa de la novela: la indistinción entre opresores viejos y nuevos demuestra que el poder mismo corrompe, independientemente de quién lo ejerza."
+        mode: "highlight",
+        concept: "El mandamiento final",
+        text: "Subraya la parte que revela la hipocresía total del nuevo régimen:",
+        fragment: `Había un solo Mandamiento. Decía: TODOS LOS ANIMALES SON IGUALES PERO ALGUNOS ANIMALES SON MÁS IGUALES QUE OTROS`,
+        correctHighlight: "PERO ALGUNOS ANIMALES SON MÁS IGUALES QUE OTROS",
+        feedback: "Perfecto. La contradicción lógica refleja el cinismo total: ni siquiera pretenden ocultar la hipocresía.",
+        feedbackAlt: "Esta frase resume toda la novela: el lenguaje se pervierte para que la desigualdad suene como igualdad."
+      },
+    ],
+    flashcards: [
+      {
+        id: "fc1",
+        front: "¿Qué representan los cerdos en la alegoría?",
+        back: "La clase dirigente comunista (Stalin y los bolcheviques)."
+      },
+      {
+        id: "fc2",
+        front: "¿Qué le pasa a Boxer?",
+        back: "Trabaja hasta el colapso y es vendido al matadero. Napoleón miente diciendo que murió en el hospital."
+      },
+      {
+        id: "fc3",
+        front: "¿Qué son los Siete Mandamientos?",
+        back: "Las reglas de la rebelión que los cerdos modifican gradualmente hasta quedar en una sola contradictoria."
       },
     ],
     debatePrompts: [
@@ -150,6 +178,7 @@ const BOOKS = [
         context: "Trabaja hasta morir repitiendo 'Napoleón siempre tiene razón'. ¿Su lealtad absoluta es admirable o es parte del problema?",
       },
     ],
+    forumId: "granja-forum",
   },
 ];
 
@@ -196,6 +225,7 @@ body {
 @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 @keyframes inkDrop { 0% { opacity: 0; transform: scale(0.94); } 60% { transform: scale(1.02); } 100% { opacity: 1; transform: scale(1); } }
+@keyframes flip { from { transform: rotateY(0deg); } to { transform: rotateY(180deg); } }
 
 .btn-primary {
   background: var(--vino);
@@ -241,6 +271,17 @@ body {
 
 .rule { border-top: 1px solid var(--linea); margin: 20px 0; }
 .rule-vino { display: block; width: 40px; height: 2px; background: var(--vino); margin: 12px 0; }
+
+.highlight-word {
+  background: var(--vino);
+  color: var(--marfil);
+  padding: 2px 4px;
+  border-radius: 2px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.highlight-word:hover { background: var(--vinoB); }
 `;
 
 /* ───────────────── COMPONENTE PRINCIPAL ───────────────── */
@@ -248,38 +289,87 @@ export default function App() {
   const [screen, setScreen] = useState("home");
   const [selectedBook, setSelectedBook] = useState(null);
   const [selectedDebate, setSelectedDebate] = useState(null);
-  const [user, setUser] = useState(null); // Firebase user
+  const [user, setUser] = useState(null);
   const [streak, setStreak] = useState(0);
   const [points, setPoints] = useState(0);
   const [completedBooks, setCompletedBooks] = useState([]);
+  const [globalStats, setGlobalStats] = useState(null);
 
   // Escuchar cambios de autenticación
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
+      if (currentUser) {
+        // Cargar datos del usuario desde Firebase
+        const userDoc = await getDoc(doc(db, "users", currentUser.uid));
+        if (userDoc.exists()) {
+          const data = userDoc.data();
+          setStreak(data.streak || 0);
+          setPoints(data.points || 0);
+          setCompletedBooks(data.completedBooks || []);
+        }
+      }
     });
     return () => unsubscribe();
   }, []);
 
-  function onChallengeComplete(bookId, earnedPoints) {
-    setPoints((p) => p + earnedPoints);
-    setStreak((s) => s + 1);
-    if (!completedBooks.includes(bookId)) {
-      setCompletedBooks((cb) => [...cb, bookId]);
+  // Cargar estadísticas globales
+  useEffect(() => {
+    loadGlobalStats();
+  }, []);
+
+  async function loadGlobalStats() {
+    try {
+      const statsDoc = await getDoc(doc(db, "stats", "global"));
+      if (statsDoc.exists()) {
+        setGlobalStats(statsDoc.data());
+      }
+    } catch (err) {
+      console.error("Error cargando stats:", err);
     }
+  }
+
+  async function onChallengeComplete(bookId, earnedPoints) {
+    const newPoints = points + earnedPoints;
+    const newStreak = streak + 1;
+    const newCompleted = completedBooks.includes(bookId) ? completedBooks : [...completedBooks, bookId];
+
+    setPoints(newPoints);
+    setStreak(newStreak);
+    setCompletedBooks(newCompleted);
+
+    // Guardar en Firebase si hay usuario
+    if (user) {
+      await setDoc(doc(db, "users", user.uid), {
+        streak: newStreak,
+        points: newPoints,
+        completedBooks: newCompleted,
+        lastActivity: serverTimestamp(),
+      }, { merge: true });
+    }
+
+    // Actualizar estadísticas globales
+    await updateDoc(doc(db, "stats", "global"), {
+      [`books.${bookId}.completions`]: increment(1),
+      totalChallenges: increment(1),
+    });
+
+    loadGlobalStats();
   }
 
   return (
     <div className="paper-bg" style={{ maxWidth: 480, margin: "0 auto", minHeight: "100vh", display: "flex", flexDirection: "column", position: "relative" }}>
       <style>{GLOBAL_STYLES}</style>
-      <div style={{ flex: 1, overflow: "auto" }}>
-        {screen === "home" && <HomeScreen onPickBook={(b) => { setSelectedBook(b); setScreen("book"); }} />}
+      <div style={{ flex: 1, overflow: "auto", paddingBottom: 80 }}>
+        {screen === "home" && <HomeScreen onPickBook={(b) => { setSelectedBook(b); setScreen("book"); }} globalStats={globalStats} />}
         {screen === "book" && selectedBook && (
           <BookScreen
             book={selectedBook}
             onBack={() => setScreen("home")}
             onStartChallenge={() => setScreen("challenge")}
             onOpenDebate={(d) => { setSelectedDebate(d); setScreen("debate"); }}
+            onOpenFlashcards={() => setScreen("flashcards")}
+            onOpenForum={() => setScreen("forum")}
           />
         )}
         {screen === "challenge" && selectedBook && (
@@ -287,6 +377,12 @@ export default function App() {
         )}
         {screen === "debate" && selectedDebate && selectedBook && (
           <DebateScreen book={selectedBook} debate={selectedDebate} onBack={() => setScreen("book")} user={user} />
+        )}
+        {screen === "flashcards" && selectedBook && (
+          <FlashcardsScreen book={selectedBook} onBack={() => setScreen("book")} />
+        )}
+        {screen === "forum" && selectedBook && (
+          <ForumScreen book={selectedBook} onBack={() => setScreen("book")} user={user} />
         )}
         {screen === "profile" && <ProfileScreen streak={streak} points={points} completedBooks={completedBooks} user={user} onLogout={() => setScreen("home")} />}
       </div>
@@ -304,7 +400,7 @@ function TopBar({ onBack, title, subtitle }) {
         ← Volver
       </button>
       <div style={{ flex: 1, textAlign: "center" }}>
-        <div className="serif" style={{ fontSize: 16, fontWeight: 500, color: "var(--tinta)" }}>{title}</div>
+        <div className="serif" style={{ fontSize: 16, fontWeight: 500, color: "var(--tinka)" }}>{title}</div>
         {subtitle && <div style={{ fontSize: 10, letterSpacing: 1.5, textTransform: "uppercase", color: "var(--sepia)", marginTop: 2 }}>{subtitle}</div>}
       </div>
       <div style={{ width: 60 }} />
@@ -318,7 +414,7 @@ function NavBar({ current, onChange, streak }) {
     { id: "profile", label: "Perfil", icon: "✦" },
   ];
   return (
-    <div style={{ position: "sticky", bottom: 0, background: "var(--marfil)", borderTop: "1px solid var(--linea)", display: "flex", zIndex: 50 }}>
+    <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, background: "var(--marfil)", borderTop: "1px solid var(--linea)", display: "flex", zIndex: 50, maxWidth: 480, margin: "0 auto" }}>
       {items.map((it) => {
         const active = current === it.id;
         return (
@@ -355,18 +451,30 @@ function NavBar({ current, onChange, streak }) {
 }
 
 /* ═══════ HOME ═══════ */
-function HomeScreen({ onPickBook }) {
+function HomeScreen({ onPickBook, globalStats }) {
   return (
     <div style={{ animation: "fadeIn 0.4s" }}>
       <div style={{ padding: "40px 24px 28px" }}>
-        <div style={{ fontSize: 10, letterSpacing: 3, color: "var(--sepia)", textTransform: "uppercase" }}>Año I · Número 01</div>
         <span className="rule-vino" />
         <h1 className="serif" style={{ fontSize: 42, fontWeight: 900, lineHeight: 1, color: "var(--tinta)", letterSpacing: "-0.02em" }}>Análisis</h1>
         <div className="serif-italic" style={{ fontSize: 16, marginTop: 4, color: "var(--tinta2)", fontStyle: "italic" }}>la lectura como pensamiento</div>
         <p style={{ fontSize: 13, marginTop: 20, color: "var(--tinta2)", lineHeight: 1.7, maxWidth: 380 }}>
-          La primera plataforma dedicada exclusivamente al análisis crítico literario en español. No es un examen. No hay presión. Solo leer, pensar, y practicar cómo mirar un texto.
+          La primera plataforma dedicada exclusivamente al análisis crítico literario en español.
         </p>
       </div>
+
+      {/* Estadísticas globales */}
+      {globalStats && (
+        <div style={{ padding: "0 24px", marginBottom: 20 }}>
+          <div style={{ background: "var(--marfil)", border: "1px solid var(--linea)", padding: "16px 18px" }}>
+            <div style={{ fontSize: 10, letterSpacing: 2, color: "var(--sepia)", textTransform: "uppercase", marginBottom: 10 }}>Esta semana</div>
+            <div className="serif" style={{ fontSize: 15, color: "var(--tinta)", lineHeight: 1.6 }}>
+              <strong>{globalStats.totalChallenges || 0}</strong> personas completaron desafíos de análisis crítico
+            </div>
+          </div>
+        </div>
+      )}
+
       <div style={{ padding: "0 24px", marginBottom: 20 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12, color: "var(--sepia)" }}>
           <span style={{ flex: 1, height: 1, background: "var(--linea)" }} />
@@ -376,17 +484,15 @@ function HomeScreen({ onPickBook }) {
       </div>
       <div style={{ padding: "0 20px 24px" }}>
         {BOOKS.map((book, i) => (
-          <BookCard key={book.id} book={book} index={i} onClick={() => onPickBook(book)} />
+          <BookCard key={book.id} book={book} index={i} onClick={() => onPickBook(book)} globalStats={globalStats} />
         ))}
-      </div>
-      <div style={{ padding: "20px 24px 32px", textAlign: "center", color: "var(--sepia)", fontSize: 10, letterSpacing: 2, textTransform: "uppercase" }}>
-        Proyecto ExpoITC · Especialización en Sistemas
       </div>
     </div>
   );
 }
 
-function BookCard({ book, index, onClick }) {
+function BookCard({ book, index, onClick, globalStats }) {
+  const stats = globalStats?.books?.[book.id];
   return (
     <div
       onClick={onClick}
@@ -398,36 +504,52 @@ function BookCard({ book, index, onClick }) {
       <h3 className="serif" style={{ fontSize: 22, fontWeight: 700, lineHeight: 1.15, color: "var(--tinta)", letterSpacing: "-0.01em", marginBottom: 4 }}>{book.title}</h3>
       <div className="serif-italic" style={{ fontSize: 13, color: "var(--tinta2)", fontStyle: "italic", marginBottom: 12 }}>{book.author}</div>
       <p style={{ fontSize: 13, color: "var(--tinta2)", lineHeight: 1.6, marginBottom: 14 }}>{book.tagline}</p>
-      <div style={{ display: "flex", gap: 16, fontSize: 10, letterSpacing: 1, color: "var(--sepia)", textTransform: "uppercase" }}>
+      <div style={{ display: "flex", gap: 16, fontSize: 10, letterSpacing: 1, color: "var(--sepia)", textTransform: "uppercase", flexWrap: "wrap" }}>
         <span>{book.questions.length} preguntas</span>
         <span>·</span>
-        <span>{book.debatePrompts.length} debates</span>
+        <span>{book.flashcards.length} flashcards</span>
+        {stats && stats.completions > 0 && (
+          <>
+            <span>·</span>
+            <span style={{ color: "var(--vino)" }}>{stats.completions} completados</span>
+          </>
+        )}
       </div>
     </div>
   );
 }
 
 /* ═══════ PANTALLA DE UN LIBRO ═══════ */
-function BookScreen({ book, onBack, onStartChallenge, onOpenDebate }) {
+function BookScreen({ book, onBack, onStartChallenge, onOpenDebate, onOpenFlashcards, onOpenForum }) {
   return (
     <div style={{ animation: "fadeIn 0.3s" }}>
       <TopBar onBack={onBack} title={book.title} subtitle={book.author} />
-      <div style={{ padding: "28px 24px" }}>
+      <div style={{ padding: "28px 24px", paddingBottom: 100 }}>
         <div style={{ fontSize: 10, letterSpacing: 2.5, color: "var(--sepia)", textTransform: "uppercase", marginBottom: 6 }}>{book.genre} · {book.year}</div>
         <h1 className="serif" style={{ fontSize: 36, fontWeight: 900, lineHeight: 1, color: "var(--tinta)", letterSpacing: "-0.02em", marginBottom: 8 }}>{book.title}</h1>
         <div className="serif-italic" style={{ fontSize: 16, color: "var(--tinta2)", fontStyle: "italic" }}>{book.author}</div>
         <span className="rule-vino" />
         <p className="serif" style={{ fontSize: 17, color: "var(--tinta)", lineHeight: 1.5, fontStyle: "italic", marginTop: 14 }}>"{book.tagline}"</p>
 
+        {/* Desafíos */}
         <div style={{ marginTop: 36, padding: "22px 20px", background: "var(--marfil)", border: "1px solid var(--linea)" }}>
-          <div style={{ fontSize: 10, letterSpacing: 2, color: "var(--sepia)", textTransform: "uppercase", marginBottom: 8 }}>Explorar ideas</div>
           <h3 className="serif" style={{ fontSize: 20, fontWeight: 700, color: "var(--tinta)", marginBottom: 8 }}>Practica análisis crítico</h3>
           <p style={{ fontSize: 13, color: "var(--tinta2)", lineHeight: 1.7, marginBottom: 16 }}>
-            {book.questions.length} preguntas de interpretación. Sin presión. Sin nota. Solo pensar.
+            {book.questions.length} preguntas de interpretación. Sin presión. Solo pensar.
           </p>
           <button className="btn-primary" onClick={onStartChallenge}>Empezar →</button>
         </div>
 
+        {/* Flashcards */}
+        <div style={{ marginTop: 16, padding: "22px 20px", background: "var(--marfil)", border: "1px solid var(--linea)" }}>
+          <h3 className="serif" style={{ fontSize: 20, fontWeight: 700, color: "var(--tinta)", marginBottom: 8 }}>Flashcards de repaso</h3>
+          <p style={{ fontSize: 13, color: "var(--tinta2)", lineHeight: 1.7, marginBottom: 16 }}>
+            {book.flashcards.length} conceptos clave para repasar.
+          </p>
+          <button className="btn-ghost" onClick={onOpenFlashcards}>Repasar conceptos →</button>
+        </div>
+
+        {/* Debates */}
         <div style={{ marginTop: 28 }}>
           <div style={{ fontSize: 10, letterSpacing: 2, color: "var(--sepia)", textTransform: "uppercase", marginBottom: 14 }}>Preguntas abiertas</div>
           {book.debatePrompts.map((dp) => (
@@ -443,23 +565,37 @@ function BookScreen({ book, onBack, onStartChallenge, onOpenDebate }) {
             </div>
           ))}
         </div>
+
+        {/* Foro */}
+        <div style={{ marginTop: 28, padding: "22px 20px", background: "var(--marfil)", border: "1px solid var(--linea)" }}>
+          <h3 className="serif" style={{ fontSize: 20, fontWeight: 700, color: "var(--tinta)", marginBottom: 8 }}>Foro · Preguntas y dudas</h3>
+          <p style={{ fontSize: 13, color: "var(--tinta2)", lineHeight: 1.7, marginBottom: 16 }}>
+            Pregunta lo que no entendiste. Otros lectores responden.
+          </p>
+          <button className="btn-ghost" onClick={onOpenForum}>Entrar al foro →</button>
+        </div>
       </div>
     </div>
   );
 }
 
-/* ═══════ PANTALLA DE DESAFÍO ═══════ */
+/* ═══════ PANTALLA DE DESAFÍO CON NUEVOS TIPOS ═══════ */
 function ChallengeScreen({ book, onBack, onComplete }) {
   const [index, setIndex] = useState(0);
   const [answered, setAnswered] = useState(false);
   const [chosen, setChosen] = useState(null);
   const [correctCount, setCorrectCount] = useState(0);
   const [finished, setFinished] = useState(false);
+  const [fragmentExpanded, setFragmentExpanded] = useState(true);
+  const [highlightedWords, setHighlightedWords] = useState([]);
 
   const q = book.questions[index];
   const total = book.questions.length;
 
   function isCorrect() {
+    if (q.mode === "highlight") {
+      return highlightedWords.includes(q.correctHighlight);
+    }
     return chosen === q.correct;
   }
 
@@ -474,9 +610,20 @@ function ChallengeScreen({ book, onBack, onComplete }) {
       setIndex(index + 1);
       setAnswered(false);
       setChosen(null);
+      setHighlightedWords([]);
+      setFragmentExpanded(true);
     } else {
       onComplete(correctCount * 10);
       setFinished(true);
+    }
+  }
+
+  function toggleHighlight(word) {
+    if (answered) return;
+    if (highlightedWords.includes(word)) {
+      setHighlightedWords(highlightedWords.filter(w => w !== word));
+    } else {
+      setHighlightedWords([...highlightedWords, word]);
     }
   }
 
@@ -485,13 +632,11 @@ function ChallengeScreen({ book, onBack, onComplete }) {
       <div style={{ animation: "fadeIn 0.4s" }}>
         <TopBar onBack={onBack} title="Sesión completada" />
         <div style={{ padding: "40px 24px", textAlign: "center" }}>
-          <div style={{ fontSize: 10, letterSpacing: 3, color: "var(--sepia)", textTransform: "uppercase", marginBottom: 12 }}>Tu lectura</div>
           <div className="serif" style={{ fontSize: 72, fontWeight: 900, color: "var(--vino)", lineHeight: 1, letterSpacing: "-0.04em" }}>{correctCount}</div>
           <div className="serif-italic" style={{ fontSize: 16, fontStyle: "italic", color: "var(--tinta2)", marginTop: 8 }}>
             {correctCount === total ? "ideas exploradas" : `de ${total} ideas`}
           </div>
           <div style={{ marginTop: 36, padding: "20px", background: "var(--marfil)", border: "1px solid var(--linea)", textAlign: "left" }}>
-            <div style={{ fontSize: 10, letterSpacing: 2, color: "var(--sepia)", textTransform: "uppercase", marginBottom: 8 }}>Ganaste</div>
             <div className="serif" style={{ fontSize: 22, fontWeight: 700, color: "var(--tinta)" }}>+{correctCount * 10} puntos</div>
             <div style={{ fontSize: 12, color: "var(--tinta2)", marginTop: 4 }}>y sumaste un día a tu racha de lectura.</div>
           </div>
@@ -507,46 +652,95 @@ function ChallengeScreen({ book, onBack, onComplete }) {
       <div style={{ height: 2, background: "var(--linea)" }}>
         <div style={{ height: "100%", background: "var(--vino)", width: `${((index + (answered ? 1 : 0)) / total) * 100}%`, transition: "width 0.4s" }} />
       </div>
-      <div style={{ padding: "24px 22px 40px", animation: "fadeUp 0.3s" }} key={index}>
+      <div style={{ padding: "24px 22px 100px", animation: "fadeUp 0.3s" }} key={index}>
         <div style={{ marginBottom: 14 }}>
           <span className="chip">
             {q.mode === "critical" && "Análisis"}
             {q.mode === "context" && "Contexto"}
+            {q.mode === "fragment" && "Fragmento"}
+            {q.mode === "highlight" && "Subrayar"}
           </span>
         </div>
         {q.concept && <div className="serif-italic" style={{ fontSize: 12, color: "var(--vino)", fontStyle: "italic", marginBottom: 6 }}>sobre {q.concept}</div>}
         <h2 className="serif" style={{ fontSize: 22, fontWeight: 500, color: "var(--tinta)", lineHeight: 1.35, marginBottom: 22 }}>{q.text}</h2>
-        {q.fragment && (
-          <div style={{ padding: "18px 20px", background: "var(--marfil)", borderLeft: "3px solid var(--vino)", marginBottom: 20, fontFamily: "Fraunces, Georgia, serif", fontSize: 15, fontStyle: "italic", color: "var(--tinta2)", lineHeight: 1.65 }}>
-            {q.fragment}
+
+        {/* Fragmento expandible */}
+        {(q.mode === "fragment" || q.mode === "highlight") && q.fragment && (
+          <div style={{ marginBottom: 20 }}>
+            <button
+              className="btn-ghost"
+              onClick={() => setFragmentExpanded(!fragmentExpanded)}
+              style={{ width: "100%", marginBottom: 10, display: "flex", alignItems: "center", justifyContent: "space-between" }}
+            >
+              <span>{fragmentExpanded ? "Ocultar" : "Mostrar"} fragmento</span>
+              <span>{fragmentExpanded ? "▲" : "▼"}</span>
+            </button>
+            {fragmentExpanded && (
+              <div style={{ padding: "18px 20px", background: "var(--marfil)", borderLeft: "3px solid var(--vino)", fontFamily: "Fraunces, Georgia, serif", fontSize: 15, fontStyle: "italic", color: "var(--tinta2)", lineHeight: 1.65, animation: "fadeIn 0.3s" }}>
+                {q.mode === "highlight" ? (
+                  <div>
+                    {q.fragment.split(" ").map((word, i) => {
+                      const isHighlighted = highlightedWords.includes(word);
+                      return (
+                        <span
+                          key={i}
+                          onClick={() => toggleHighlight(word)}
+                          className={isHighlighted ? "highlight-word" : ""}
+                          style={{ cursor: "pointer", marginRight: 4 }}
+                        >
+                          {word}
+                        </span>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  q.fragment
+                )}
+              </div>
+            )}
           </div>
         )}
-        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-          {q.options.map((opt, i) => {
-            const isCorr = i === q.correct;
-            const isPicked = chosen === i;
-            let bg = "var(--marfil)";
-            let border = "var(--linea)";
-            let color = "var(--tinta)";
-            if (answered) {
-              if (isCorr) { bg = "#e8f0e3"; border = "var(--verde)"; color = "var(--verde)"; }
-              else if (isPicked) { bg = "#f6e6e3"; border = "var(--rojo)"; color = "var(--rojo)"; }
-              else { color = "var(--sepia)"; }
-            } else if (isPicked) { border = "var(--vino)"; bg = "#f9f2e9"; }
-            return (
-              <button key={i} disabled={answered} onClick={() => setChosen(i)}
-                style={{ padding: "14px 18px", background: bg, border: `1px solid ${border}`, borderRadius: 2, color, textAlign: "left", fontSize: 14, fontFamily: "Inter, sans-serif", cursor: answered ? "default" : "pointer", lineHeight: 1.5, display: "flex", gap: 12 }}>
-                <span className="serif" style={{ fontSize: 14, color: "var(--sepia)", fontWeight: 500, minWidth: 16 }}>{String.fromCharCode(97 + i)}.</span>
-                <span style={{ flex: 1 }}>{opt}</span>
-                {answered && isCorr && <span style={{ color: "var(--verde)" }}>✓</span>}
-                {answered && isPicked && !isCorr && <span style={{ color: "var(--rojo)" }}>✗</span>}
-              </button>
-            );
-          })}
-        </div>
-        {!answered && (
-          <button className="btn-primary" disabled={chosen === null} style={{ width: "100%", marginTop: 20 }} onClick={submitAnswer}>Confirmar respuesta</button>
+
+        {/* Opciones (solo para preguntas que no son de subrayar) */}
+        {q.mode !== "highlight" && (
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {q.options.map((opt, i) => {
+              const isCorr = i === q.correct;
+              const isPicked = chosen === i;
+              let bg = "var(--marfil)";
+              let border = "var(--linea)";
+              let color = "var(--tinta)";
+              if (answered) {
+                if (isCorr) { bg = "#e8f0e3"; border = "var(--verde)"; color = "var(--verde)"; }
+                else if (isPicked) { bg = "#f6e6e3"; border = "var(--rojo)"; color = "var(--rojo)"; }
+                else { color = "var(--sepia)"; }
+              } else if (isPicked) { border = "var(--vino)"; bg = "#f9f2e9"; }
+              return (
+                <button key={i} disabled={answered} onClick={() => setChosen(i)}
+                  style={{ padding: "14px 18px", background: bg, border: `1px solid ${border}`, borderRadius: 2, color, textAlign: "left", fontSize: 14, fontFamily: "Inter, sans-serif", cursor: answered ? "default" : "pointer", lineHeight: 1.5, display: "flex", gap: 12 }}>
+                  <span className="serif" style={{ fontSize: 14, color: "var(--sepia)", fontWeight: 500, minWidth: 16 }}>{String.fromCharCode(97 + i)}.</span>
+                  <span style={{ flex: 1 }}>{opt}</span>
+                  {answered && isCorr && <span style={{ color: "var(--verde)" }}>✓</span>}
+                  {answered && isPicked && !isCorr && <span style={{ color: "var(--rojo)" }}>✗</span>}
+                </button>
+              );
+            })}
+          </div>
         )}
+
+        {/* Botón de confirmar */}
+        {!answered && (
+          <button
+            className="btn-primary"
+            disabled={q.mode === "highlight" ? highlightedWords.length === 0 : chosen === null}
+            style={{ width: "100%", marginTop: 20 }}
+            onClick={submitAnswer}
+          >
+            Confirmar respuesta
+          </button>
+        )}
+
+        {/* Feedback */}
         {answered && (
           <div style={{ marginTop: 22, padding: "20px", background: "var(--marfil)", borderLeft: `3px solid ${isCorrect() ? "var(--verde)" : "var(--vino)"}`, animation: "inkDrop 0.4s" }}>
             <div className="serif-italic" style={{ fontSize: 12, color: isCorrect() ? "var(--verde)" : "var(--vino)", fontStyle: "italic", marginBottom: 8, letterSpacing: 0.5 }}>
@@ -563,14 +757,179 @@ function ChallengeScreen({ book, onBack, onComplete }) {
   );
 }
 
-/* ═══════ PANTALLA DE DEBATE CON FIREBASE ═══════ */
+/* ═══════ FLASHCARDS ═══════ */
+function FlashcardsScreen({ book, onBack }) {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [flipped, setFlipped] = useState(false);
+  const [mastered, setMastered] = useState([]);
+
+  const card = book.flashcards[currentIndex];
+
+  function nextCard() {
+    if (currentIndex + 1 < book.flashcards.length) {
+      setCurrentIndex(currentIndex + 1);
+      setFlipped(false);
+    } else {
+      setCurrentIndex(0);
+      setFlipped(false);
+    }
+  }
+
+  function markMastered() {
+    if (!mastered.includes(card.id)) {
+      setMastered([...mastered, card.id]);
+    }
+    nextCard();
+  }
+
+  return (
+    <div style={{ animation: "fadeIn 0.4s" }}>
+      <TopBar onBack={onBack} title="Flashcards" subtitle={book.title} />
+      <div style={{ padding: "40px 24px", minHeight: "60vh", display: "flex", flexDirection: "column", justifyContent: "center" }}>
+        <div style={{ textAlign: "center", marginBottom: 20 }}>
+          <span className="chip">{currentIndex + 1} / {book.flashcards.length}</span>
+          {mastered.length > 0 && (
+            <span style={{ marginLeft: 10, fontSize: 12, color: "var(--verde)" }}>✓ {mastered.length} dominadas</span>
+          )}
+        </div>
+
+        <div
+          onClick={() => setFlipped(!flipped)}
+          style={{
+            background: "var(--marfil)",
+            border: "2px solid var(--vino)",
+            borderRadius: 8,
+            padding: "40px 30px",
+            minHeight: 280,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            cursor: "pointer",
+            transition: "transform 0.3s",
+            transform: flipped ? "rotateY(180deg)" : "rotateY(0deg)",
+            transformStyle: "preserve-3d",
+          }}
+        >
+          <div style={{ transform: flipped ? "rotateY(180deg)" : "rotateY(0deg)" }}>
+            <div className="serif" style={{ fontSize: 20, fontWeight: 500, color: "var(--tinta)", lineHeight: 1.5, textAlign: "center" }}>
+              {flipped ? card.back : card.front}
+            </div>
+            <div style={{ fontSize: 11, color: "var(--sepia)", marginTop: 20, textAlign: "center", textTransform: "uppercase", letterSpacing: 1.5 }}>
+              {flipped ? "Respuesta" : "Toca para voltear"}
+            </div>
+          </div>
+        </div>
+
+        {flipped && (
+          <div style={{ marginTop: 30, display: "flex", gap: 10, animation: "fadeIn 0.3s" }}>
+            <button className="btn-ghost" onClick={nextCard} style={{ flex: 1 }}>Revisar más tarde</button>
+            <button className="btn-primary" onClick={markMastered} style={{ flex: 1 }}>✓ La domino</button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ═══════ FORO ═══════ */
+function ForumScreen({ book, onBack, user }) {
+  const [question, setQuestion] = useState("");
+  const [threads, setThreads] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    loadThreads();
+  }, [book.forumId]);
+
+  async function loadThreads() {
+    try {
+      const q = query(collection(db, "forums", book.forumId, "threads"), orderBy("timestamp", "desc"));
+      const snapshot = await getDocs(q);
+      const items = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setThreads(items);
+    } catch (err) {
+      console.error("Error cargando foro:", err);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function submitQuestion() {
+    if (question.trim().length < 10) return;
+    try {
+      await addDoc(collection(db, "forums", book.forumId, "threads"), {
+        question: question.trim(),
+        author: user?.email || "Invitado",
+        timestamp: serverTimestamp(),
+        replies: 0,
+      });
+      setQuestion("");
+      loadThreads();
+    } catch (err) {
+      console.error("Error publicando:", err);
+      alert("Error al publicar. Intenta de nuevo.");
+    }
+  }
+
+  return (
+    <div style={{ animation: "fadeIn 0.4s" }}>
+      <TopBar onBack={onBack} title="Foro" subtitle={book.title} />
+      <div style={{ padding: "28px 24px", paddingBottom: 100 }}>
+        <h2 className="serif" style={{ fontSize: 24, fontWeight: 700, color: "var(--tinta)", marginBottom: 8 }}>Preguntas y dudas</h2>
+        <p style={{ fontSize: 13, color: "var(--tinta2)", lineHeight: 1.7, marginBottom: 28 }}>
+          ¿No entendiste algo? Pregunta. Otros lectores responden.
+        </p>
+
+        <div style={{ marginBottom: 28 }}>
+          <textarea
+            value={question}
+            onChange={(e) => setQuestion(e.target.value)}
+            placeholder="¿Qué no entendiste del libro? Ej: No entendí por qué Winston traiciona a Julia..."
+            style={{ width: "100%", minHeight: 100, padding: "16px", background: "var(--marfil)", border: "1px solid var(--linea)", borderRadius: 2, fontFamily: "Inter, sans-serif", fontSize: 14, lineHeight: 1.6, color: "var(--tinta)", resize: "vertical", outline: "none" }}
+            onFocus={(e) => (e.target.style.borderColor = "var(--vino)")}
+            onBlur={(e) => (e.target.style.borderColor = "var(--linea)")}
+          />
+          <div style={{ fontSize: 11, color: "var(--sepia)", marginTop: 6, marginBottom: 12, textAlign: "right" }}>{question.length} caracteres · mínimo 10</div>
+          <button className="btn-primary" disabled={question.trim().length < 10} style={{ width: "100%" }} onClick={submitQuestion}>Publicar pregunta</button>
+        </div>
+
+        {loading ? (
+          <div style={{ textAlign: "center", padding: "40px", color: "var(--sepia)" }}>Cargando preguntas...</div>
+        ) : (
+          <div>
+            <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 18 }}>
+              <span style={{ flex: 1, height: 1, background: "var(--linea)" }} />
+              <span className="serif-italic" style={{ fontSize: 13, fontStyle: "italic", color: "var(--tinta2)" }}>Preguntas recientes</span>
+              <span style={{ flex: 1, height: 1, background: "var(--linea)" }} />
+            </div>
+            {threads.length === 0 && (
+              <p className="serif-italic" style={{ textAlign: "center", color: "var(--sepia)", fontSize: 13, fontStyle: "italic", padding: "20px" }}>
+                Sé el primero en preguntar algo sobre este libro.
+              </p>
+            )}
+            {threads.map((thread, i) => (
+              <div key={thread.id} style={{ marginBottom: 14, padding: "16px 18px", background: "var(--marfil)", border: "1px solid var(--linea)", borderRadius: 2, animation: `fadeUp 0.4s ${i * 0.1}s both` }}>
+                <p className="serif" style={{ fontSize: 15, fontWeight: 500, color: "var(--tinta)", lineHeight: 1.6, marginBottom: 10 }}>{thread.question}</p>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <div className="serif-italic" style={{ fontSize: 12, fontStyle: "italic", color: "var(--sepia)" }}>— {thread.author}</div>
+                  <div style={{ fontSize: 11, color: "var(--sepia)" }}>{thread.replies || 0} respuestas</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ═══════ DEBATE (sin cambios) ═══════ */
 function DebateScreen({ book, debate, onBack, user }) {
   const [argument, setArgument] = useState("");
   const [submitted, setSubmitted] = useState(false);
-  const [args, setArgs] = useState([]);
+  const [arguments, setArguments] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Cargar argumentos de Firestore
   useEffect(() => {
     loadArguments();
   }, [debate.id]);
@@ -580,7 +939,7 @@ function DebateScreen({ book, debate, onBack, user }) {
       const q = query(collection(db, "debates", debate.id, "arguments"), orderBy("timestamp", "desc"));
       const snapshot = await getDocs(q);
       const args = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      setArgs(args);
+      setArguments(args);
     } catch (err) {
       console.error("Error cargando argumentos:", err);
     } finally {
@@ -597,7 +956,7 @@ function DebateScreen({ book, debate, onBack, user }) {
         timestamp: serverTimestamp(),
       });
       setSubmitted(true);
-      loadArguments(); // Recargar para ver el nuevo argumento
+      loadArguments();
     } catch (err) {
       console.error("Error guardando argumento:", err);
       alert("Error al publicar. Intenta de nuevo.");
@@ -607,14 +966,12 @@ function DebateScreen({ book, debate, onBack, user }) {
   return (
     <div style={{ animation: "fadeIn 0.4s" }}>
       <TopBar onBack={onBack} title="Debate" subtitle={book.title} />
-      <div style={{ padding: "28px 24px" }}>
-        <div style={{ fontSize: 9, letterSpacing: 2, color: "var(--sepia)", textTransform: "uppercase", marginBottom: 10 }}>{book.title} · {book.author}</div>
+      <div style={{ padding: "28px 24px", paddingBottom: 100 }}>
         <h1 className="serif" style={{ fontSize: 28, fontWeight: 700, color: "var(--tinta)", lineHeight: 1.2, letterSpacing: "-0.01em", marginBottom: 14 }}>❝ {debate.question}</h1>
         <p className="serif-italic" style={{ fontSize: 14, fontStyle: "italic", color: "var(--tinta2)", lineHeight: 1.6, marginBottom: 28 }}>{debate.context}</p>
 
         {!submitted ? (
           <>
-            <div style={{ fontSize: 10, letterSpacing: 2, color: "var(--sepia)", textTransform: "uppercase", marginBottom: 10 }}>Tu argumento</div>
             <textarea
               value={argument}
               onChange={(e) => setArgument(e.target.value)}
@@ -642,12 +999,12 @@ function DebateScreen({ book, debate, onBack, user }) {
               <span className="serif-italic" style={{ fontSize: 13, fontStyle: "italic", color: "var(--tinta2)" }}>Otros lectores</span>
               <span style={{ flex: 1, height: 1, background: "var(--linea)" }} />
             </div>
-            {args.length === 0 && (
+            {arguments.length === 0 && (
               <p className="serif-italic" style={{ textAlign: "center", color: "var(--sepia)", fontSize: 13, fontStyle: "italic", padding: "20px" }}>
                 Sé el primero en argumentar sobre esta pregunta.
               </p>
             )}
-            {args.map((arg, i) => (
+            {arguments.map((arg, i) => (
               <div key={arg.id} style={{ marginBottom: 14, padding: "16px 18px", background: "var(--marfil)", border: "1px solid var(--linea)", borderRadius: 2, animation: `fadeUp 0.4s ${i * 0.1}s both` }}>
                 <p className="serif" style={{ fontSize: 14, color: "var(--tinta)", lineHeight: 1.6, marginBottom: 10 }}>{arg.text}</p>
                 <div className="serif-italic" style={{ fontSize: 12, fontStyle: "italic", color: "var(--sepia)" }}>— {arg.author}</div>
@@ -660,7 +1017,7 @@ function DebateScreen({ book, debate, onBack, user }) {
   );
 }
 
-/* ═══════ PANTALLA DE PERFIL CON LOGIN ═══════ */
+/* ═══════ PERFIL (con racha sincronizada) ═══════ */
 function ProfileScreen({ streak, points, completedBooks, user, onLogout }) {
   const [showLogin, setShowLogin] = useState(false);
   const [showSignup, setShowSignup] = useState(false);
@@ -700,19 +1057,15 @@ function ProfileScreen({ streak, points, completedBooks, user, onLogout }) {
   return (
     <div style={{ animation: "fadeIn 0.4s" }}>
       <div style={{ padding: "36px 24px 24px" }}>
-        <div style={{ fontSize: 10, letterSpacing: 3, color: "var(--sepia)", textTransform: "uppercase" }}>Sección 02</div>
         <span className="rule-vino" />
         <h1 className="serif" style={{ fontSize: 36, fontWeight: 900, color: "var(--tinta)", lineHeight: 1, letterSpacing: "-0.02em" }}>Tu lectura</h1>
-        <p className="serif-italic" style={{ fontSize: 14, fontStyle: "italic", color: "var(--tinta2)", marginTop: 6 }}>en el año I de este diario</p>
       </div>
 
-      <div style={{ padding: "0 20px" }}>
-        {/* Login/Logout Section */}
+      <div style={{ padding: "0 20px", paddingBottom: 100 }}>
         {!user ? (
           <div style={{ marginBottom: 20, padding: "20px", background: "var(--marfil)", border: "1px solid var(--linea)" }}>
-            <div style={{ fontSize: 10, letterSpacing: 2, color: "var(--sepia)", textTransform: "uppercase", marginBottom: 10 }}>Cuenta</div>
             <p style={{ fontSize: 13, color: "var(--tinta2)", lineHeight: 1.7, marginBottom: 14 }}>
-              Inicia sesión para guardar tu racha y puntos en la nube.
+              Inicia sesión para sincronizar tu racha y puntos en la nube.
             </p>
             {!showLogin && !showSignup && (
               <div style={{ display: "flex", gap: 8 }}>
@@ -748,26 +1101,23 @@ function ProfileScreen({ streak, points, completedBooks, user, onLogout }) {
           </div>
         ) : (
           <div style={{ marginBottom: 20, padding: "20px", background: "var(--marfil)", border: "1px solid var(--verde)" }}>
-            <div style={{ fontSize: 10, letterSpacing: 2, color: "var(--sepia)", textTransform: "uppercase", marginBottom: 10 }}>Cuenta</div>
             <p style={{ fontSize: 13, color: "var(--tinta)", marginBottom: 12 }}>✓ Sesión iniciada como: <strong>{user.email}</strong></p>
             <button className="btn-ghost" onClick={handleLogout} style={{ width: "100%" }}>Cerrar sesión</button>
           </div>
         )}
 
-        {/* Stats */}
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 16 }}>
           <StatCard label="Racha de días" value={streak} suffix="días" />
           <StatCard label="Puntos ganados" value={points} />
         </div>
 
-        {/* Completed Books */}
         <div style={{ marginTop: 28, padding: "20px 22px", background: "var(--marfil)", border: "1px solid var(--linea)", marginBottom: 32 }}>
           <div style={{ fontSize: 10, letterSpacing: 2, color: "var(--sepia)", textTransform: "uppercase", marginBottom: 12 }}>
             Libros practicados · {completedBookObjects.length} de {BOOKS.length}
           </div>
           {completedBookObjects.length === 0 ? (
             <p className="serif-italic" style={{ fontSize: 14, fontStyle: "italic", color: "var(--tinta2)", lineHeight: 1.6 }}>
-              Aún no has completado ningún libro. Empieza por el que más te intrigue.
+              Aún no has completado ningún libro.
             </p>
           ) : (
             <ul style={{ listStyle: "none" }}>
