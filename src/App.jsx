@@ -927,19 +927,19 @@ function ForumScreen({ book, onBack, user }) {
 function DebateScreen({ book, debate, onBack, user }) {
   const [argument, setArgument] = useState("");
   const [submitted, setSubmitted] = useState(false);
-  const [arguments, setArguments] = useState([]);
+  const [debateArgs, setDebateArgs] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    loadArguments();
+    loaddebateArgs();
   }, [debate.id]);
 
-  async function loadArguments() {
+  async function loaddebateArgs() {
     try {
-      const q = query(collection(db, "debates", debate.id, "arguments"), orderBy("timestamp", "desc"));
+      const q = query(collection(db, "debates", debate.id, "debateArgs"), orderBy("timestamp", "desc"));
       const snapshot = await getDocs(q);
       const args = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      setArguments(args);
+      setdebateArgs(args);
     } catch (err) {
       console.error("Error cargando argumentos:", err);
     } finally {
@@ -950,13 +950,13 @@ function DebateScreen({ book, debate, onBack, user }) {
   async function submit() {
     if (argument.trim().length < 20) return;
     try {
-      await addDoc(collection(db, "debates", debate.id, "arguments"), {
+      await addDoc(collection(db, "debates", debate.id, "debateArgs"), {
         text: argument.trim(),
         author: user?.email || "Invitado",
         timestamp: serverTimestamp(),
       });
       setSubmitted(true);
-      loadArguments();
+      loaddebateArgs();
     } catch (err) {
       console.error("Error guardando argumento:", err);
       alert("Error al publicar. Intenta de nuevo.");
@@ -999,12 +999,12 @@ function DebateScreen({ book, debate, onBack, user }) {
               <span className="serif-italic" style={{ fontSize: 13, fontStyle: "italic", color: "var(--tinta2)" }}>Otros lectores</span>
               <span style={{ flex: 1, height: 1, background: "var(--linea)" }} />
             </div>
-            {arguments.length === 0 && (
+            {debateArgs.length === 0 && (
               <p className="serif-italic" style={{ textAlign: "center", color: "var(--sepia)", fontSize: 13, fontStyle: "italic", padding: "20px" }}>
                 Sé el primero en argumentar sobre esta pregunta.
               </p>
             )}
-            {arguments.map((arg, i) => (
+            {debateArgs.map((arg, i) => (
               <div key={arg.id} style={{ marginBottom: 14, padding: "16px 18px", background: "var(--marfil)", border: "1px solid var(--linea)", borderRadius: 2, animation: `fadeUp 0.4s ${i * 0.1}s both` }}>
                 <p className="serif" style={{ fontSize: 14, color: "var(--tinta)", lineHeight: 1.6, marginBottom: 10 }}>{arg.text}</p>
                 <div className="serif-italic" style={{ fontSize: 12, fontStyle: "italic", color: "var(--sepia)" }}>— {arg.author}</div>
