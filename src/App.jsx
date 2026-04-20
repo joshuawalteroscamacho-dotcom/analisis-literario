@@ -836,6 +836,7 @@ function ForumScreen({ book, onBack, user }) {
   const [question, setQuestion] = useState("");
   const [threads, setThreads] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [openThread, setOpenThread] = useState(null); // hilo abierto para ver respuestas
 
   useEffect(() => {
     loadThreads();
@@ -861,14 +862,28 @@ function ForumScreen({ book, onBack, user }) {
         question: question.trim(),
         author: user?.email || "Invitado",
         timestamp: serverTimestamp(),
-        replies: 0,
+        replyCount: 0,
       });
       setQuestion("");
-      loadThreads();
+      setLoading(true);
+      await loadThreads();
     } catch (err) {
       console.error("Error publicando:", err);
       alert("Error al publicar. Intenta de nuevo.");
     }
+  }
+
+  // Si hay un hilo abierto, mostrar sus respuestas
+  if (openThread) {
+    return (
+      <ThreadScreen
+        book={book}
+        thread={openThread}
+        onBack={() => { setOpenThread(null); loadThreads(); }}
+        user={user}
+        forumId={book.forumId}
+      />
+    );
   }
 
   return (
@@ -880,6 +895,7 @@ function ForumScreen({ book, onBack, user }) {
           ¿No entendiste algo? Pregunta. Otros lectores responden.
         </p>
 
+        {/* Publicar pregunta */}
         <div style={{ marginBottom: 28 }}>
           <textarea
             value={question}
@@ -893,6 +909,7 @@ function ForumScreen({ book, onBack, user }) {
           <button className="btn-primary" disabled={question.trim().length < 10} style={{ width: "100%" }} onClick={submitQuestion}>Publicar pregunta</button>
         </div>
 
+        {/* Lista de preguntas */}
         {loading ? (
           <div style={{ textAlign: "center", padding: "40px", color: "var(--sepia)" }}>Cargando preguntas...</div>
         ) : (
@@ -908,11 +925,19 @@ function ForumScreen({ book, onBack, user }) {
               </p>
             )}
             {threads.map((thread, i) => (
-              <div key={thread.id} style={{ marginBottom: 14, padding: "16px 18px", background: "var(--marfil)", border: "1px solid var(--linea)", borderRadius: 2, animation: `fadeUp 0.4s ${i * 0.1}s both` }}>
+              <div
+                key={thread.id}
+                onClick={() => setOpenThread(thread)}
+                style={{ marginBottom: 14, padding: "16px 18px", background: "var(--marfil)", border: "1px solid var(--linea)", borderRadius: 2, cursor: "pointer", animation: `fadeUp 0.4s ${i * 0.1}s both` }}
+                onMouseEnter={(e) => (e.currentTarget.style.borderColor = "var(--vino)")}
+                onMouseLeave={(e) => (e.currentTarget.style.borderColor = "var(--linea)")}
+              >
                 <p className="serif" style={{ fontSize: 15, fontWeight: 500, color: "var(--tinta)", lineHeight: 1.6, marginBottom: 10 }}>{thread.question}</p>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                   <div className="serif-italic" style={{ fontSize: 12, fontStyle: "italic", color: "var(--sepia)" }}>— {thread.author}</div>
-                  <div style={{ fontSize: 11, color: "var(--sepia)" }}>{thread.replies || 0} respuestas</div>
+                  <div style={{ fontSize: 11, color: "var(--vino)", letterSpacing: 0.5 }}>
+                    {thread.replyCount || 0} respuestas · Ver →
+                  </div>
                 </div>
               </div>
             ))}
@@ -923,7 +948,111 @@ function ForumScreen({ book, onBack, user }) {
   );
 }
 
-/* ═══════ DEBATE (sin cambios) ═══════ */
+/* ═══════ HILO DE RESPUESTAS ═══════ */
+function ThreadScreen({ book, thread, onBack, user, forumId }) {
+  const [reply, setReply] = useState("");
+  const [replies, setReplies] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    loadReplies();
+  }, [thread.id]);
+
+  async function loadReplies() {
+    try {
+      const q = query(
+        collection(db, "forums", forumId, "threads", thread.id, "replies"),
+        orderBy("timestamp", "asc")
+      );
+      const snapshot = await getDocs(q);
+      const items = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setReplies(items);
+    } catch (err) {
+      console.error("Error cargando respuestas:", err);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function submitReply() {
+    if (reply.trim().length < 5) return;
+    try {
+      // Guardar la respuesta en la subcolección
+      await addDoc(
+        collection(db, "forums", forumId, "threads", thread.id, "replies"),
+        {
+          text: reply.trim(),
+          author: user?.email || "Invitado",
+          timestamp: serverTimestamp(),
+        }
+      );
+      // Actualizar el contador de respuestas en el hilo
+      await updateDoc(doc(db, "forums", forumId, "threads", thread.id), {
+        replyCount: increment(1),
+      });
+      setReply("");
+      await loadReplies();
+    } catch (err) {
+      console.error("Error al responder:", err);
+      alert("Error al publicar. Intenta de nuevo.");
+    }
+  }
+
+  return (
+    <div style={{ animation: "fadeIn 0.4s" }}>
+      <TopBar onBack={onBack} title="Respuestas" subtitle={book.title} />
+      <div style={{ padding: "28px 24px", paddingBottom: 100 }}>
+
+        {/* Pregunta original */}
+        <div style={{ padding: "20px", background: "var(--marfil)", borderLeft: "3px solid var(--vino)", marginBottom: 28 }}>
+          <div style={{ fontSize: 10, letterSpacing: 2, color: "var(--sepia)", textTransform: "uppercase", marginBottom: 8 }}>Pregunta</div>
+          <p className="serif" style={{ fontSize: 17, fontWeight: 500, color: "var(--tinta)", lineHeight: 1.5, marginBottom: 10 }}>{thread.question}</p>
+          <div className="serif-italic" style={{ fontSize: 12, fontStyle: "italic", color: "var(--sepia)" }}>— {thread.author}</div>
+        </div>
+
+        {/* Respuestas existentes */}
+        {loading ? (
+          <div style={{ textAlign: "center", padding: "20px", color: "var(--sepia)" }}>Cargando respuestas...</div>
+        ) : (
+          <div style={{ marginBottom: 28 }}>
+            {replies.length === 0 && (
+              <p className="serif-italic" style={{ textAlign: "center", color: "var(--sepia)", fontSize: 13, fontStyle: "italic", padding: "20px" }}>
+                Nadie ha respondido aún. Sé el primero.
+              </p>
+            )}
+            {replies.map((r, i) => (
+              <div key={r.id} style={{ marginBottom: 12, padding: "14px 16px", background: "var(--marfil)", border: "1px solid var(--linea)", borderRadius: 2, animation: `fadeUp 0.3s ${i * 0.08}s both` }}>
+                <p style={{ fontSize: 14, color: "var(--tinta)", lineHeight: 1.6, marginBottom: 8 }}>{r.text}</p>
+                <div className="serif-italic" style={{ fontSize: 11, fontStyle: "italic", color: "var(--sepia)" }}>— {r.author}</div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Escribir respuesta */}
+        <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 14 }}>
+          <span style={{ flex: 1, height: 1, background: "var(--linea)" }} />
+          <span className="serif-italic" style={{ fontSize: 13, fontStyle: "italic", color: "var(--tinta2)" }}>Tu respuesta</span>
+          <span style={{ flex: 1, height: 1, background: "var(--linea)" }} />
+        </div>
+        <textarea
+          value={reply}
+          onChange={(e) => setReply(e.target.value)}
+          placeholder="Escribe tu respuesta..."
+          style={{ width: "100%", minHeight: 100, padding: "16px", background: "var(--marfil)", border: "1px solid var(--linea)", borderRadius: 2, fontFamily: "Inter, sans-serif", fontSize: 14, lineHeight: 1.6, color: "var(--tinta)", resize: "vertical", outline: "none" }}
+          onFocus={(e) => (e.target.style.borderColor = "var(--vino)")}
+          onBlur={(e) => (e.target.style.borderColor = "var(--linea)")}
+        />
+        <div style={{ fontSize: 11, color: "var(--sepia)", marginTop: 6, marginBottom: 12, textAlign: "right" }}>{reply.length} caracteres · mínimo 5</div>
+        <button className="btn-primary" disabled={reply.trim().length < 5} style={{ width: "100%" }} onClick={submitReply}>
+          Publicar respuesta
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/* ═══════ DEBATE ═══════ */
 function DebateScreen({ book, debate, onBack, user }) {
   const [argument, setArgument] = useState("");
   const [submitted, setSubmitted] = useState(false);
@@ -931,15 +1060,15 @@ function DebateScreen({ book, debate, onBack, user }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    loaddebateArgs();
+    loadDebateArgs();
   }, [debate.id]);
 
-  async function loaddebateArgs() {
+  async function loadDebateArgs() {
     try {
-      const q = query(collection(db, "debates", debate.id, "debateArgs"), orderBy("timestamp", "desc"));
+      const q = query(collection(db, "debates", debate.id, "arguments"), orderBy("timestamp", "desc"));
       const snapshot = await getDocs(q);
       const args = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      setdebateArgs(args);
+      setDebateArgs(args);
     } catch (err) {
       console.error("Error cargando argumentos:", err);
     } finally {
@@ -950,13 +1079,13 @@ function DebateScreen({ book, debate, onBack, user }) {
   async function submit() {
     if (argument.trim().length < 20) return;
     try {
-      await addDoc(collection(db, "debates", debate.id, "debateArgs"), {
+      await addDoc(collection(db, "debates", debate.id, "arguments"), {
         text: argument.trim(),
         author: user?.email || "Invitado",
         timestamp: serverTimestamp(),
       });
       setSubmitted(true);
-      loaddebateArgs();
+      await loadDebateArgs();
     } catch (err) {
       console.error("Error guardando argumento:", err);
       alert("Error al publicar. Intenta de nuevo.");
