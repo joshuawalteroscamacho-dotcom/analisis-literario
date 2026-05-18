@@ -182,107 +182,57 @@ const BOOKS = [
   },
 ];
 
-/* ───────────────── ESTILOS GLOBALES ───────────────── */
+/* ───────────────── ESTILOS GLOBALES (SIMPLE) ───────────────── */
 const GLOBAL_STYLES = `
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,700;0,9..144,900;1,9..144,400;1,9..144,500&family=Inter:wght@400;500;600&display=swap');
-
-:root {
-  --papel:   #f5efe4;
-  --marfil:  #faf6ec;
-  --tinta:   #1a1613;
-  --tinta2:  #4a3f37;
-  --vino:    #7a1f2b;
-  --vinoB:   #5c141d;
-  --sepia:   #a0896b;
-  --sepiaL:  #d9c9a8;
-  --linea:   #e6dcc7;
-  --verde:   #4a6a3d;
-  --rojo:    #a32d2d;
-}
-
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
-  font-family: 'Inter', sans-serif;
-  background: var(--papel);
-  color: var(--tinta);
-  -webkit-font-smoothing: antialiased;
+  font-family: system-ui, -apple-system, sans-serif;
+  background: #ffffff;
+  color: #111111;
+  font-size: 15px;
 }
-
-.paper-bg {
-  background: radial-gradient(ellipse at top, rgba(160, 137, 107, 0.08), transparent 60%), var(--papel);
-}
-
-.serif { font-family: 'Fraunces', 'Georgia', serif; }
-.serif-italic { font-family: 'Fraunces', serif; font-style: italic; }
-
-::selection { background: var(--vino); color: var(--marfil); }
-
-::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--sepiaL); border-radius: 3px; }
-
-@keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-@keyframes inkDrop { 0% { opacity: 0; transform: scale(0.94); } 60% { transform: scale(1.02); } 100% { opacity: 1; transform: scale(1); } }
-@keyframes flip { from { transform: rotateY(0deg); } to { transform: rotateY(180deg); } }
 
 .btn-primary {
-  background: var(--vino);
-  color: var(--marfil);
+  background: #0066cc;
+  color: #ffffff;
   border: none;
-  padding: 12px 18px;
-  border-radius: 2px;
-  font-family: 'Inter', sans-serif;
-  font-size: 13px;
-  font-weight: 500;
-  letter-spacing: 0.5px;
+  padding: 10px 16px;
+  border-radius: 6px;
+  font-size: 14px;
   cursor: pointer;
-  transition: background 0.2s;
 }
-.btn-primary:hover { background: var(--vinoB); }
-.btn-primary:disabled { background: var(--sepia); cursor: not-allowed; }
+.btn-primary:hover { background: #0055aa; }
+.btn-primary:disabled { background: #aaaaaa; cursor: not-allowed; }
 
 .btn-ghost {
-  background: transparent;
-  color: var(--tinta);
-  border: 1px solid var(--sepia);
-  padding: 11px 18px;
-  border-radius: 2px;
-  font-family: 'Inter', sans-serif;
-  font-size: 13px;
-  font-weight: 500;
+  background: #ffffff;
+  color: #111111;
+  border: 1px solid #d0d0d0;
+  padding: 10px 16px;
+  border-radius: 6px;
+  font-size: 14px;
   cursor: pointer;
-  transition: background 0.2s;
 }
-.btn-ghost:hover { background: var(--linea); }
+.btn-ghost:hover { background: #f0f0f0; }
 
 .chip {
   display: inline-block;
-  padding: 3px 10px;
-  border: 1px solid var(--sepia);
-  border-radius: 2px;
-  font-size: 10px;
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-  color: var(--tinta2);
-  background: transparent;
+  padding: 2px 8px;
+  border: 1px solid #d0d0d0;
+  border-radius: 4px;
+  font-size: 11px;
+  color: #555555;
+  background: #f5f5f5;
 }
-
-.rule { border-top: 1px solid var(--linea); margin: 20px 0; }
-.rule-vino { display: block; width: 40px; height: 2px; background: var(--vino); margin: 12px 0; }
 
 .highlight-word {
-  background: var(--vino);
-  color: var(--marfil);
-  padding: 2px 4px;
+  background: #ffe066;
+  padding: 1px 3px;
   border-radius: 2px;
   cursor: pointer;
-  transition: background 0.2s;
 }
-
-.highlight-word:hover { background: var(--vinoB); }
-`;
+`
 
 /* ───────────────── COMPONENTE PRINCIPAL ───────────────── */
 export default function App() {
@@ -358,7 +308,7 @@ export default function App() {
   }
 
   return (
-    <div className="paper-bg" style={{ maxWidth: 480, margin: "0 auto", minHeight: "100vh", display: "flex", flexDirection: "column", position: "relative" }}>
+    <div  style={{ maxWidth: 480, margin: "0 auto", minHeight: "100vh", display: "flex", flexDirection: "column", position: "relative" }}>
       <style>{GLOBAL_STYLES}</style>
       <div style={{ flex: 1, overflow: "auto", paddingBottom: 80 }}>
         {screen === "home" && <HomeScreen onPickBook={(b) => { setSelectedBook(b); setScreen("book"); }} globalStats={globalStats} />}
@@ -395,13 +345,13 @@ export default function App() {
 
 function TopBar({ onBack, title, subtitle }) {
   return (
-    <div style={{ padding: "18px 20px", background: "var(--marfil)", borderBottom: "1px solid var(--linea)", display: "flex", alignItems: "center", gap: 14 }}>
-      <button onClick={onBack} style={{ background: "transparent", border: "none", fontSize: 13, color: "var(--tinta2)", cursor: "pointer", fontFamily: "Inter, sans-serif", padding: 0 }}>
+    <div style={{ padding: "18px 20px", background: "#ffffff", borderBottom: "1px solid #e0e0e0", display: "flex", alignItems: "center", gap: 14 }}>
+      <button onClick={onBack} style={{ background: "transparent", border: "none", fontSize: 13, color: "#555555", cursor: "pointer", fontFamily: "Inter, sans-serif", padding: 0 }}>
         ← Volver
       </button>
       <div style={{ flex: 1, textAlign: "center" }}>
-        <div className="serif" style={{ fontSize: 16, fontWeight: 500, color: "var(--tinka)" }}>{title}</div>
-        {subtitle && <div style={{ fontSize: 10, letterSpacing: 1.5, textTransform: "uppercase", color: "var(--sepia)", marginTop: 2 }}>{subtitle}</div>}
+        <div  style={{ fontSize: 16, fontWeight: 500, color: "#111111" }}>{title}</div>
+        {subtitle && <div style={{ fontSize: 10, letterSpacing: 0, textTransform: "uppercase", color: "#888888", marginTop: 2 }}>{subtitle}</div>}
       </div>
       <div style={{ width: 60 }} />
     </div>
@@ -414,7 +364,7 @@ function NavBar({ current, onChange, streak }) {
     { id: "profile", label: "Perfil", icon: "✦" },
   ];
   return (
-    <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, background: "var(--marfil)", borderTop: "1px solid var(--linea)", display: "flex", zIndex: 50, maxWidth: 480, margin: "0 auto" }}>
+    <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, background: "#ffffff", borderTop: "1px solid #e0e0e0", display: "flex", zIndex: 50, maxWidth: 480, margin: "0 auto" }}>
       {items.map((it) => {
         const active = current === it.id;
         return (
@@ -431,15 +381,15 @@ function NavBar({ current, onChange, streak }) {
               flexDirection: "column",
               alignItems: "center",
               gap: 3,
-              color: active ? "var(--vino)" : "var(--tinta2)",
-              borderTop: active ? "2px solid var(--vino)" : "2px solid transparent",
+              color: active ? "#0066cc" : "#555555",
+              borderTop: active ? "2px solid #0066cc" : "2px solid transparent",
               marginTop: -1,
             }}
           >
-            <span className="serif" style={{ fontSize: 18, lineHeight: 1 }}>{it.icon}</span>
-            <span style={{ fontSize: 10, letterSpacing: 1.5, textTransform: "uppercase", fontWeight: active ? 600 : 400 }}>{it.label}</span>
+            <span  style={{ fontSize: 18, lineHeight: 1 }}>{it.icon}</span>
+            <span style={{ fontSize: 10, letterSpacing: 0, textTransform: "uppercase", fontWeight: active ? 600 : 400 }}>{it.label}</span>
             {it.id === "profile" && streak > 0 && (
-              <span style={{ position: "absolute", top: 6, marginLeft: 28, background: "var(--vino)", color: "var(--marfil)", borderRadius: 8, fontSize: 9, padding: "1px 5px", letterSpacing: 0 }}>
+              <span style={{ position: "absolute", top: 6, marginLeft: 28, background: "#0066cc", color: "#ffffff", borderRadius: 6, fontSize: 9, padding: "1px 5px", letterSpacing: 0 }}>
                 {streak}
               </span>
             )}
@@ -453,36 +403,36 @@ function NavBar({ current, onChange, streak }) {
 /* ═══════ HOME ═══════ */
 function HomeScreen({ onPickBook, globalStats }) {
   return (
-    <div style={{ animation: "fadeIn 0.4s" }}>
-      <div style={{ padding: "40px 24px 28px" }}>
-        <span className="rule-vino" />
-        <h1 className="serif" style={{ fontSize: 42, fontWeight: 900, lineHeight: 1, color: "var(--tinta)", letterSpacing: "-0.02em" }}>Análisis</h1>
-        <div className="serif-italic" style={{ fontSize: 16, marginTop: 4, color: "var(--tinta2)", fontStyle: "italic" }}>la lectura como pensamiento</div>
-        <p style={{ fontSize: 13, marginTop: 20, color: "var(--tinta2)", lineHeight: 1.7, maxWidth: 380 }}>
+    <div style={{  }}>
+      <div style={{ padding: "20px 16px" }}>
+        
+        <h1  style={{ fontSize: 42, fontWeight: 900, lineHeight: 1, color: "#111111", letterSpacing: "normal" }}>Análisis</h1>
+        <div  style={{ fontSize: 16, marginTop: 4, color: "#555555",  }}>la lectura como pensamiento</div>
+        <p style={{ fontSize: 13, marginTop: 20, color: "#555555", lineHeight: 1.7, maxWidth: 380 }}>
           La primera plataforma dedicada exclusivamente al análisis crítico literario en español.
         </p>
       </div>
 
       {/* Estadísticas globales */}
       {globalStats && (
-        <div style={{ padding: "0 24px", marginBottom: 20 }}>
-          <div style={{ background: "var(--marfil)", border: "1px solid var(--linea)", padding: "16px 18px" }}>
-            <div style={{ fontSize: 10, letterSpacing: 2, color: "var(--sepia)", textTransform: "uppercase", marginBottom: 10 }}>Esta semana</div>
-            <div className="serif" style={{ fontSize: 15, color: "var(--tinta)", lineHeight: 1.6 }}>
+        <div style={{ padding: "0 16px", marginBottom: 16 }}>
+          <div style={{ background: "#ffffff", border: "1px solid #e0e0e0", padding: "16px 18px" }}>
+            <div style={{ fontSize: 10, letterSpacing: 0, color: "#888888", textTransform: "uppercase", marginBottom: 10 }}>Esta semana</div>
+            <div  style={{ fontSize: 15, color: "#111111", lineHeight: 1.6 }}>
               <strong>{globalStats.totalChallenges || 0}</strong> personas completaron desafíos de análisis crítico
             </div>
           </div>
         </div>
       )}
 
-      <div style={{ padding: "0 24px", marginBottom: 20 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12, color: "var(--sepia)" }}>
-          <span style={{ flex: 1, height: 1, background: "var(--linea)" }} />
-          <span className="serif-italic" style={{ fontSize: 13, fontStyle: "italic", color: "var(--tinta2)" }}>Biblioteca</span>
-          <span style={{ flex: 1, height: 1, background: "var(--linea)" }} />
+      <div style={{ padding: "0 16px", marginBottom: 16 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12, color: "#888888" }}>
+          <span style={{ flex: 1, height: 1, background: "#e0e0e0" }} />
+          <span style={{ fontSize: 13, color: "#555555" }}>Biblioteca</span>
+          <span style={{ flex: 1, height: 1, background: "#e0e0e0" }} />
         </div>
       </div>
-      <div style={{ padding: "0 20px 24px" }}>
+      <div style={{ padding: "0 16px 20px" }}>
         {BOOKS.map((book, i) => (
           <BookCard key={book.id} book={book} index={i} onClick={() => onPickBook(book)} globalStats={globalStats} />
         ))}
@@ -496,22 +446,22 @@ function BookCard({ book, index, onClick, globalStats }) {
   return (
     <div
       onClick={onClick}
-      style={{ marginBottom: 16, padding: "20px 22px", background: "var(--marfil)", border: "1px solid var(--linea)", borderRadius: 2, cursor: "pointer", animation: `fadeUp 0.5s ${index * 0.05}s both`, position: "relative" }}
-      onMouseEnter={(e) => (e.currentTarget.style.borderColor = "var(--vino)")}
-      onMouseLeave={(e) => (e.currentTarget.style.borderColor = "var(--linea)")}
+      style={{ marginBottom: 16, padding: "20px 22px", background: "#ffffff", border: "1px solid #e0e0e0", borderRadius: 6, cursor: "pointer", position: "relative" }}
+      onMouseEnter={(e) => (e.currentTarget.style.borderColor = "#0066cc")}
+      onMouseLeave={(e) => (e.currentTarget.style.borderColor = "#e0e0e0")}
     >
-      <div style={{ fontSize: 9, letterSpacing: 2, color: "var(--sepia)", textTransform: "uppercase", marginBottom: 8 }}>{book.genre} · {book.year}</div>
-      <h3 className="serif" style={{ fontSize: 22, fontWeight: 700, lineHeight: 1.15, color: "var(--tinta)", letterSpacing: "-0.01em", marginBottom: 4 }}>{book.title}</h3>
-      <div className="serif-italic" style={{ fontSize: 13, color: "var(--tinta2)", fontStyle: "italic", marginBottom: 12 }}>{book.author}</div>
-      <p style={{ fontSize: 13, color: "var(--tinta2)", lineHeight: 1.6, marginBottom: 14 }}>{book.tagline}</p>
-      <div style={{ display: "flex", gap: 16, fontSize: 10, letterSpacing: 1, color: "var(--sepia)", textTransform: "uppercase", flexWrap: "wrap" }}>
+      <div style={{ fontSize: 9, letterSpacing: 0, color: "#888888", textTransform: "uppercase", marginBottom: 8 }}>{book.genre} · {book.year}</div>
+      <h3  style={{ fontSize: 22, fontWeight: 700, lineHeight: 1.15, color: "#111111", letterSpacing: "normal", marginBottom: 4 }}>{book.title}</h3>
+      <div  style={{ fontSize: 13, color: "#555555", marginBottom: 12 }}>{book.author}</div>
+      <p style={{ fontSize: 13, color: "#555555", lineHeight: 1.6, marginBottom: 14 }}>{book.tagline}</p>
+      <div style={{ display: "flex", gap: 16, fontSize: 10, letterSpacing: 0, color: "#888888", textTransform: "uppercase", flexWrap: "wrap" }}>
         <span>{book.questions.length} preguntas</span>
         <span>·</span>
         <span>{book.flashcards.length} flashcards</span>
         {stats && stats.completions > 0 && (
           <>
             <span>·</span>
-            <span style={{ color: "var(--vino)" }}>{stats.completions} completados</span>
+            <span style={{ color: "#0066cc" }}>{stats.completions} completados</span>
           </>
         )}
       </div>
@@ -522,28 +472,28 @@ function BookCard({ book, index, onClick, globalStats }) {
 /* ═══════ PANTALLA DE UN LIBRO ═══════ */
 function BookScreen({ book, onBack, onStartChallenge, onOpenDebate, onOpenFlashcards, onOpenForum }) {
   return (
-    <div style={{ animation: "fadeIn 0.3s" }}>
+    <div style={{  }}>
       <TopBar onBack={onBack} title={book.title} subtitle={book.author} />
-      <div style={{ padding: "28px 24px", paddingBottom: 100 }}>
-        <div style={{ fontSize: 10, letterSpacing: 2.5, color: "var(--sepia)", textTransform: "uppercase", marginBottom: 6 }}>{book.genre} · {book.year}</div>
-        <h1 className="serif" style={{ fontSize: 36, fontWeight: 900, lineHeight: 1, color: "var(--tinta)", letterSpacing: "-0.02em", marginBottom: 8 }}>{book.title}</h1>
-        <div className="serif-italic" style={{ fontSize: 16, color: "var(--tinta2)", fontStyle: "italic" }}>{book.author}</div>
-        <span className="rule-vino" />
-        <p className="serif" style={{ fontSize: 17, color: "var(--tinta)", lineHeight: 1.5, fontStyle: "italic", marginTop: 14 }}>"{book.tagline}"</p>
+      <div style={{ padding: "20px 16px", paddingBottom: 100 }}>
+        <div style={{ fontSize: 10, letterSpacing: 0, color: "#888888", textTransform: "uppercase", marginBottom: 6 }}>{book.genre} · {book.year}</div>
+        <h1  style={{ fontSize: 36, fontWeight: 900, lineHeight: 1, color: "#111111", letterSpacing: "normal", marginBottom: 8 }}>{book.title}</h1>
+        <div  style={{ fontSize: 16, color: "#555555",  }}>{book.author}</div>
+        
+        <p  style={{ fontSize: 17, color: "#111111", lineHeight: 1.5, marginTop: 14 }}>"{book.tagline}"</p>
 
         {/* Desafíos */}
-        <div style={{ marginTop: 36, padding: "22px 20px", background: "var(--marfil)", border: "1px solid var(--linea)" }}>
-          <h3 className="serif" style={{ fontSize: 20, fontWeight: 700, color: "var(--tinta)", marginBottom: 8 }}>Practica análisis crítico</h3>
-          <p style={{ fontSize: 13, color: "var(--tinta2)", lineHeight: 1.7, marginBottom: 16 }}>
+        <div style={{ marginTop: 36, padding: "22px 20px", background: "#ffffff", border: "1px solid #e0e0e0" }}>
+          <h3  style={{ fontSize: 20, fontWeight: 700, color: "#111111", marginBottom: 8 }}>Practica análisis crítico</h3>
+          <p style={{ fontSize: 13, color: "#555555", lineHeight: 1.7, marginBottom: 16 }}>
             {book.questions.length} preguntas de interpretación. Sin presión. Solo pensar.
           </p>
           <button className="btn-primary" onClick={onStartChallenge}>Empezar →</button>
         </div>
 
         {/* Flashcards */}
-        <div style={{ marginTop: 16, padding: "22px 20px", background: "var(--marfil)", border: "1px solid var(--linea)" }}>
-          <h3 className="serif" style={{ fontSize: 20, fontWeight: 700, color: "var(--tinta)", marginBottom: 8 }}>Flashcards de repaso</h3>
-          <p style={{ fontSize: 13, color: "var(--tinta2)", lineHeight: 1.7, marginBottom: 16 }}>
+        <div style={{ marginTop: 16, padding: "22px 20px", background: "#ffffff", border: "1px solid #e0e0e0" }}>
+          <h3  style={{ fontSize: 20, fontWeight: 700, color: "#111111", marginBottom: 8 }}>Flashcards de repaso</h3>
+          <p style={{ fontSize: 13, color: "#555555", lineHeight: 1.7, marginBottom: 16 }}>
             {book.flashcards.length} conceptos clave para repasar.
           </p>
           <button className="btn-ghost" onClick={onOpenFlashcards}>Repasar conceptos →</button>
@@ -551,25 +501,25 @@ function BookScreen({ book, onBack, onStartChallenge, onOpenDebate, onOpenFlashc
 
         {/* Debates */}
         <div style={{ marginTop: 28 }}>
-          <div style={{ fontSize: 10, letterSpacing: 2, color: "var(--sepia)", textTransform: "uppercase", marginBottom: 14 }}>Preguntas abiertas</div>
+          <div style={{ fontSize: 10, letterSpacing: 0, color: "#888888", textTransform: "uppercase", marginBottom: 14 }}>Preguntas abiertas</div>
           {book.debatePrompts.map((dp) => (
             <div
               key={dp.id}
               onClick={() => onOpenDebate(dp)}
-              style={{ padding: "16px 18px", background: "var(--marfil)", border: "1px solid var(--linea)", marginBottom: 10, cursor: "pointer" }}
-              onMouseEnter={(e) => (e.currentTarget.style.borderColor = "var(--vino)")}
-              onMouseLeave={(e) => (e.currentTarget.style.borderColor = "var(--linea)")}
+              style={{ padding: "16px 18px", background: "#ffffff", border: "1px solid #e0e0e0", marginBottom: 10, cursor: "pointer" }}
+              onMouseEnter={(e) => (e.currentTarget.style.borderColor = "#0066cc")}
+              onMouseLeave={(e) => (e.currentTarget.style.borderColor = "#e0e0e0")}
             >
-              <div className="serif" style={{ fontSize: 15, fontWeight: 500, color: "var(--tinta)", lineHeight: 1.4 }}>❝ {dp.question}</div>
-              <div style={{ fontSize: 10, letterSpacing: 1.5, color: "var(--vino)", textTransform: "uppercase", marginTop: 8 }}>Argumentar →</div>
+              <div  style={{ fontSize: 15, fontWeight: 500, color: "#111111", lineHeight: 1.4 }}>❝ {dp.question}</div>
+              <div style={{ fontSize: 10, letterSpacing: 0, color: "#0066cc", textTransform: "uppercase", marginTop: 8 }}>Argumentar →</div>
             </div>
           ))}
         </div>
 
         {/* Foro */}
-        <div style={{ marginTop: 28, padding: "22px 20px", background: "var(--marfil)", border: "1px solid var(--linea)" }}>
-          <h3 className="serif" style={{ fontSize: 20, fontWeight: 700, color: "var(--tinta)", marginBottom: 8 }}>Foro · Preguntas y dudas</h3>
-          <p style={{ fontSize: 13, color: "var(--tinta2)", lineHeight: 1.7, marginBottom: 16 }}>
+        <div style={{ marginTop: 28, padding: "22px 20px", background: "#ffffff", border: "1px solid #e0e0e0" }}>
+          <h3  style={{ fontSize: 20, fontWeight: 700, color: "#111111", marginBottom: 8 }}>Foro · Preguntas y dudas</h3>
+          <p style={{ fontSize: 13, color: "#555555", lineHeight: 1.7, marginBottom: 16 }}>
             Pregunta lo que no entendiste. Otros lectores responden.
           </p>
           <button className="btn-ghost" onClick={onOpenForum}>Entrar al foro →</button>
@@ -629,16 +579,16 @@ function ChallengeScreen({ book, onBack, onComplete }) {
 
   if (finished) {
     return (
-      <div style={{ animation: "fadeIn 0.4s" }}>
+      <div style={{  }}>
         <TopBar onBack={onBack} title="Sesión completada" />
-        <div style={{ padding: "40px 24px", textAlign: "center" }}>
-          <div className="serif" style={{ fontSize: 72, fontWeight: 900, color: "var(--vino)", lineHeight: 1, letterSpacing: "-0.04em" }}>{correctCount}</div>
-          <div className="serif-italic" style={{ fontSize: 16, fontStyle: "italic", color: "var(--tinta2)", marginTop: 8 }}>
+        <div style={{ padding: "20px 16px", textAlign: "center" }}>
+          <div  style={{ fontSize: 72, fontWeight: 900, color: "#0066cc", lineHeight: 1, letterSpacing: "normal" }}>{correctCount}</div>
+          <div  style={{ fontSize: 16, color: "#555555", marginTop: 8 }}>
             {correctCount === total ? "ideas exploradas" : `de ${total} ideas`}
           </div>
-          <div style={{ marginTop: 36, padding: "20px", background: "var(--marfil)", border: "1px solid var(--linea)", textAlign: "left" }}>
-            <div className="serif" style={{ fontSize: 22, fontWeight: 700, color: "var(--tinta)" }}>+{correctCount * 10} puntos</div>
-            <div style={{ fontSize: 12, color: "var(--tinta2)", marginTop: 4 }}>y sumaste un día a tu racha de lectura.</div>
+          <div style={{ marginTop: 36, padding: "20px", background: "#ffffff", border: "1px solid #e0e0e0", textAlign: "left" }}>
+            <div  style={{ fontSize: 22, fontWeight: 700, color: "#111111" }}>+{correctCount * 10} puntos</div>
+            <div style={{ fontSize: 12, color: "#555555", marginTop: 4 }}>y sumaste un día a tu racha de lectura.</div>
           </div>
           <button className="btn-primary" style={{ marginTop: 24, width: "100%" }} onClick={onBack}>Volver al libro</button>
         </div>
@@ -649,10 +599,10 @@ function ChallengeScreen({ book, onBack, onComplete }) {
   return (
     <div>
       <TopBar onBack={onBack} title={book.title} subtitle={`Pregunta ${index + 1} · ${book.title}`} />
-      <div style={{ height: 2, background: "var(--linea)" }}>
-        <div style={{ height: "100%", background: "var(--vino)", width: `${((index + (answered ? 1 : 0)) / total) * 100}%`, transition: "width 0.4s" }} />
+      <div style={{ height: 2, background: "#e0e0e0" }}>
+        <div style={{ height: "100%", background: "#0066cc", width: `${((index + (answered ? 1 : 0)) / total) * 100}%`, transition: "width 0.4s" }} />
       </div>
-      <div style={{ padding: "24px 22px 100px", animation: "fadeUp 0.3s" }} key={index}>
+      <div style={{ padding: "24px 22px 100px",  }} key={index}>
         <div style={{ marginBottom: 14 }}>
           <span className="chip">
             {q.mode === "critical" && "Análisis"}
@@ -661,8 +611,8 @@ function ChallengeScreen({ book, onBack, onComplete }) {
             {q.mode === "highlight" && "Subrayar"}
           </span>
         </div>
-        {q.concept && <div className="serif-italic" style={{ fontSize: 12, color: "var(--vino)", fontStyle: "italic", marginBottom: 6 }}>sobre {q.concept}</div>}
-        <h2 className="serif" style={{ fontSize: 22, fontWeight: 500, color: "var(--tinta)", lineHeight: 1.35, marginBottom: 22 }}>{q.text}</h2>
+        {q.concept && <div  style={{ fontSize: 12, color: "#0066cc", marginBottom: 6 }}>sobre {q.concept}</div>}
+        <h2  style={{ fontSize: 22, fontWeight: 500, color: "#111111", lineHeight: 1.35, marginBottom: 22 }}>{q.text}</h2>
 
         {/* Fragmento expandible */}
         {(q.mode === "fragment" || q.mode === "highlight") && q.fragment && (
@@ -676,7 +626,7 @@ function ChallengeScreen({ book, onBack, onComplete }) {
               <span>{fragmentExpanded ? "▲" : "▼"}</span>
             </button>
             {fragmentExpanded && (
-              <div style={{ padding: "18px 20px", background: "var(--marfil)", borderLeft: "3px solid var(--vino)", fontFamily: "Fraunces, Georgia, serif", fontSize: 15, fontStyle: "italic", color: "var(--tinta2)", lineHeight: 1.65, animation: "fadeIn 0.3s" }}>
+              <div style={{ padding: "18px 20px", background: "#ffffff", borderLeft: "3px solid #0066cc", fontFamily: "system-ui, sans-serif", fontSize: 15, color: "#555555", lineHeight: 1.65,  }}>
                 {q.mode === "highlight" ? (
                   <div>
                     {q.fragment.split(" ").map((word, i) => {
@@ -707,21 +657,21 @@ function ChallengeScreen({ book, onBack, onComplete }) {
             {q.options.map((opt, i) => {
               const isCorr = i === q.correct;
               const isPicked = chosen === i;
-              let bg = "var(--marfil)";
-              let border = "var(--linea)";
-              let color = "var(--tinta)";
+              let bg = "#ffffff";
+              let border = "#e0e0e0";
+              let color = "#111111";
               if (answered) {
-                if (isCorr) { bg = "#e8f0e3"; border = "var(--verde)"; color = "var(--verde)"; }
-                else if (isPicked) { bg = "#f6e6e3"; border = "var(--rojo)"; color = "var(--rojo)"; }
-                else { color = "var(--sepia)"; }
-              } else if (isPicked) { border = "var(--vino)"; bg = "#f9f2e9"; }
+                if (isCorr) { bg = "#e8f5e9"; border = "#2a7a2a"; color = "#2a7a2a"; }
+                else if (isPicked) { bg = "#fde8e8"; border = "#cc2200"; color = "#cc2200"; }
+                else { color = "#888888"; }
+              } else if (isPicked) { border = "#0066cc"; bg = "#e8f0ff"; }
               return (
                 <button key={i} disabled={answered} onClick={() => setChosen(i)}
-                  style={{ padding: "14px 18px", background: bg, border: `1px solid ${border}`, borderRadius: 2, color, textAlign: "left", fontSize: 14, fontFamily: "Inter, sans-serif", cursor: answered ? "default" : "pointer", lineHeight: 1.5, display: "flex", gap: 12 }}>
-                  <span className="serif" style={{ fontSize: 14, color: "var(--sepia)", fontWeight: 500, minWidth: 16 }}>{String.fromCharCode(97 + i)}.</span>
+                  style={{ padding: "14px 18px", background: bg, border: `1px solid ${border}`, borderRadius: 6, color, textAlign: "left", fontSize: 14, fontFamily: "Inter, sans-serif", cursor: answered ? "default" : "pointer", lineHeight: 1.5, display: "flex", gap: 12 }}>
+                  <span  style={{ fontSize: 14, color: "#888888", fontWeight: 500, minWidth: 16 }}>{String.fromCharCode(97 + i)}.</span>
                   <span style={{ flex: 1 }}>{opt}</span>
-                  {answered && isCorr && <span style={{ color: "var(--verde)" }}>✓</span>}
-                  {answered && isPicked && !isCorr && <span style={{ color: "var(--rojo)" }}>✗</span>}
+                  {answered && isCorr && <span style={{ color: "#2a7a2a" }}>✓</span>}
+                  {answered && isPicked && !isCorr && <span style={{ color: "#cc2200" }}>✗</span>}
                 </button>
               );
             })}
@@ -742,11 +692,11 @@ function ChallengeScreen({ book, onBack, onComplete }) {
 
         {/* Feedback */}
         {answered && (
-          <div style={{ marginTop: 22, padding: "20px", background: "var(--marfil)", borderLeft: `3px solid ${isCorrect() ? "var(--verde)" : "var(--vino)"}`, animation: "inkDrop 0.4s" }}>
-            <div className="serif-italic" style={{ fontSize: 12, color: isCorrect() ? "var(--verde)" : "var(--vino)", fontStyle: "italic", marginBottom: 8, letterSpacing: 0.5 }}>
+          <div style={{ marginTop: 22, padding: "20px", background: "#ffffff", borderLeft: `3px solid ${isCorrect() ? "#2a7a2a" : "#0066cc"}`,  }}>
+            <div  style={{ fontSize: 12, color: isCorrect() ? "#2a7a2a" : "#0066cc", marginBottom: 8, letterSpacing: 0 }}>
               {isCorrect() ? "Bien leído." : "Otra lectura:"}
             </div>
-            <p style={{ fontSize: 14, color: "var(--tinta)", lineHeight: 1.7 }}>{isCorrect() ? q.feedback : q.feedbackAlt}</p>
+            <p style={{ fontSize: 14, color: "#111111", lineHeight: 1.7 }}>{isCorrect() ? q.feedback : q.feedbackAlt}</p>
             <button className="btn-primary" style={{ marginTop: 16, width: "100%" }} onClick={next}>
               {index + 1 < total ? "Siguiente pregunta →" : "Ver mi lectura →"}
             </button>
@@ -758,77 +708,244 @@ function ChallengeScreen({ book, onBack, onComplete }) {
 }
 
 /* ═══════ FLASHCARDS ═══════ */
+// Flujo:
+// FASE 1: Repasar 3 cartas (voltear y ver respuesta)
+// FASE 2: Escribir la respuesta de cada carta
+// FASE 3: Trivia con tus propias cartas (máximo 3)
+
 function FlashcardsScreen({ book, onBack }) {
+  const REVIEW_COUNT = Math.min(3, book.flashcards.length);
+  const [phase, setPhase] = useState("review"); // "review" | "write" | "trivia" | "done"
   const [currentIndex, setCurrentIndex] = useState(0);
   const [flipped, setFlipped] = useState(false);
-  const [mastered, setMastered] = useState([]);
+  const [writeAnswer, setWriteAnswer] = useState("");
+  const [writeChecked, setWriteChecked] = useState(false);
+  const [writeSelf, setWriteSelf] = useState(null); // true/false según auto-evaluación
+  const [triviaChosen, setTriviaChosen] = useState(null);
+  const [triviaAnswered, setTriviaAnswered] = useState(false);
+  const [score, setScore] = useState(0);
+  const [reviewedCards] = useState(book.flashcards.slice(0, REVIEW_COUNT));
 
-  const card = book.flashcards[currentIndex];
+  // Genera opciones falsas mezcladas con la correcta
+  function getTriviaOptions(card) {
+    const correct = card.back;
+    const others = reviewedCards.filter(c => c.id !== card.id).map(c => c.back);
+    // Si hay menos de 3 otras cartas, usamos las que hay
+    const wrongOptions = others.slice(0, 3);
+    const all = [correct, ...wrongOptions].sort(() => Math.random() - 0.5);
+    return all;
+  }
 
-  function nextCard() {
-    if (currentIndex + 1 < book.flashcards.length) {
+  const currentCard = reviewedCards[currentIndex];
+  const triviaOptions = phase === "trivia" ? getTriviaOptions(currentCard) : [];
+
+  // ── FASE 1: Repaso ──
+  function nextReview() {
+    if (currentIndex + 1 < REVIEW_COUNT) {
       setCurrentIndex(currentIndex + 1);
       setFlipped(false);
     } else {
       setCurrentIndex(0);
+      setPhase("write");
       setFlipped(false);
+      setWriteAnswer("");
+      setWriteChecked(false);
     }
   }
 
-  function markMastered() {
-    if (!mastered.includes(card.id)) {
-      setMastered([...mastered, card.id]);
-    }
-    nextCard();
+  // ── FASE 2: Escribir ──
+  function checkWrite() {
+    setWriteChecked(true);
   }
 
-  return (
-    <div style={{ animation: "fadeIn 0.4s" }}>
-      <TopBar onBack={onBack} title="Flashcards" subtitle={book.title} />
-      <div style={{ padding: "40px 24px", minHeight: "60vh", display: "flex", flexDirection: "column", justifyContent: "center" }}>
-        <div style={{ textAlign: "center", marginBottom: 20 }}>
-          <span className="chip">{currentIndex + 1} / {book.flashcards.length}</span>
-          {mastered.length > 0 && (
-            <span style={{ marginLeft: 10, fontSize: 12, color: "var(--verde)" }}>✓ {mastered.length} dominadas</span>
+  function nextWrite(selfCorrect) {
+    setWriteSelf(selfCorrect);
+    if (selfCorrect) setScore(s => s + 1);
+    if (currentIndex + 1 < REVIEW_COUNT) {
+      setCurrentIndex(currentIndex + 1);
+      setWriteAnswer("");
+      setWriteChecked(false);
+      setWriteSelf(null);
+    } else {
+      setCurrentIndex(0);
+      setPhase("trivia");
+      setTriviaChosen(null);
+      setTriviaAnswered(false);
+    }
+  }
+
+  // ── FASE 3: Trivia ──
+  function answerTrivia(opt) {
+    if (triviaAnswered) return;
+    setTriviaChosen(opt);
+    setTriviaAnswered(true);
+    if (opt === currentCard.back) setScore(s => s + 1);
+  }
+
+  function nextTrivia() {
+    if (currentIndex + 1 < REVIEW_COUNT) {
+      setCurrentIndex(currentIndex + 1);
+      setTriviaChosen(null);
+      setTriviaAnswered(false);
+    } else {
+      setPhase("done");
+    }
+  }
+
+  // ── DONE ──
+  if (phase === "done") {
+    return (
+      <div>
+        <TopBar onBack={onBack} title="Flashcards" subtitle={book.title} />
+        <div style={{ padding: "40px 16px", textAlign: "center" }}>
+          <div style={{ fontSize: 48, marginBottom: 12 }}>🎉</div>
+          <h2 style={{ fontSize: 22, fontWeight: 700, marginBottom: 8 }}>Sesión completada</h2>
+          <p style={{ fontSize: 15, color: "#555", marginBottom: 24 }}>
+            Respondiste bien {score} de {REVIEW_COUNT * 2} preguntas
+          </p>
+          <button className="btn-primary" style={{ width: "100%" }} onClick={onBack}>Volver al libro</button>
+        </div>
+      </div>
+    );
+  }
+
+  // ── FASE 1: REPASO ──
+  if (phase === "review") {
+    return (
+      <div>
+        <TopBar onBack={onBack} title="Flashcards · Repaso" subtitle={book.title} />
+        <div style={{ padding: "20px 16px" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+            <span className="chip">Carta {currentIndex + 1} de {REVIEW_COUNT}</span>
+            <span style={{ fontSize: 12, color: "#888" }}>Fase 1: Repaso</span>
+          </div>
+
+          {/* Carta */}
+          <div
+            onClick={() => setFlipped(!flipped)}
+            style={{ border: "2px solid #0066cc", borderRadius: 8, padding: "32px 20px", minHeight: 220, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", cursor: "pointer", background: flipped ? "#e8f0ff" : "#fff", textAlign: "center" }}
+          >
+            <p style={{ fontSize: 13, color: "#888", marginBottom: 12 }}>{flipped ? "Respuesta" : "Pregunta — toca para ver"}</p>
+            <p style={{ fontSize: 17, fontWeight: 600, color: "#111", lineHeight: 1.5 }}>
+              {flipped ? currentCard.back : currentCard.front}
+            </p>
+          </div>
+
+          {flipped && (
+            <button className="btn-primary" style={{ width: "100%", marginTop: 16 }} onClick={nextReview}>
+              {currentIndex + 1 < REVIEW_COUNT ? "Siguiente carta →" : "Pasar a escribir →"}
+            </button>
+          )}
+          {!flipped && (
+            <p style={{ textAlign: "center", fontSize: 13, color: "#888", marginTop: 16 }}>Toca la carta para ver la respuesta</p>
           )}
         </div>
-
-        <div
-          onClick={() => setFlipped(!flipped)}
-          style={{
-            background: "var(--marfil)",
-            border: "2px solid var(--vino)",
-            borderRadius: 8,
-            padding: "40px 30px",
-            minHeight: 280,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            cursor: "pointer",
-            transition: "transform 0.3s",
-            transform: flipped ? "rotateY(180deg)" : "rotateY(0deg)",
-            transformStyle: "preserve-3d",
-          }}
-        >
-          <div style={{ transform: flipped ? "rotateY(180deg)" : "rotateY(0deg)" }}>
-            <div className="serif" style={{ fontSize: 20, fontWeight: 500, color: "var(--tinta)", lineHeight: 1.5, textAlign: "center" }}>
-              {flipped ? card.back : card.front}
-            </div>
-            <div style={{ fontSize: 11, color: "var(--sepia)", marginTop: 20, textAlign: "center", textTransform: "uppercase", letterSpacing: 1.5 }}>
-              {flipped ? "Respuesta" : "Toca para voltear"}
-            </div>
-          </div>
-        </div>
-
-        {flipped && (
-          <div style={{ marginTop: 30, display: "flex", gap: 10, animation: "fadeIn 0.3s" }}>
-            <button className="btn-ghost" onClick={nextCard} style={{ flex: 1 }}>Revisar más tarde</button>
-            <button className="btn-primary" onClick={markMastered} style={{ flex: 1 }}>✓ La domino</button>
-          </div>
-        )}
       </div>
-    </div>
-  );
+    );
+  }
+
+  // ── FASE 2: ESCRIBIR ──
+  if (phase === "write") {
+    return (
+      <div>
+        <TopBar onBack={onBack} title="Flashcards · Escribe" subtitle={book.title} />
+        <div style={{ padding: "20px 16px" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+            <span className="chip">Carta {currentIndex + 1} de {REVIEW_COUNT}</span>
+            <span style={{ fontSize: 12, color: "#888" }}>Fase 2: Escribe la respuesta</span>
+          </div>
+
+          {/* Pregunta */}
+          <div style={{ border: "1px solid #e0e0e0", borderRadius: 8, padding: "20px", marginBottom: 16, background: "#f9f9f9" }}>
+            <p style={{ fontSize: 13, color: "#888", marginBottom: 8 }}>Pregunta</p>
+            <p style={{ fontSize: 17, fontWeight: 600, color: "#111", lineHeight: 1.5 }}>{currentCard.front}</p>
+          </div>
+
+          {/* Input para escribir */}
+          <textarea
+            value={writeAnswer}
+            onChange={(e) => setWriteAnswer(e.target.value)}
+            disabled={writeChecked}
+            placeholder="Escribe la respuesta con tus propias palabras..."
+            style={{ width: "100%", minHeight: 100, padding: "12px", border: "1px solid #e0e0e0", borderRadius: 6, fontSize: 14, lineHeight: 1.6, resize: "vertical", outline: "none", background: writeChecked ? "#f5f5f5" : "#fff" }}
+          />
+
+          {!writeChecked && (
+            <button className="btn-primary" disabled={writeAnswer.trim().length < 3} style={{ width: "100%", marginTop: 12 }} onClick={checkWrite}>
+              Ver respuesta correcta
+            </button>
+          )}
+
+          {/* Mostrar respuesta correcta */}
+          {writeChecked && (
+            <div style={{ marginTop: 16 }}>
+              <div style={{ border: "1px solid #2a7a2a", borderRadius: 8, padding: "16px", background: "#e8f5e9", marginBottom: 16 }}>
+                <p style={{ fontSize: 13, color: "#2a7a2a", marginBottom: 8, fontWeight: 600 }}>Respuesta correcta:</p>
+                <p style={{ fontSize: 15, color: "#111", lineHeight: 1.5 }}>{currentCard.back}</p>
+              </div>
+              <p style={{ fontSize: 14, color: "#555", marginBottom: 12, textAlign: "center" }}>¿Tu respuesta era correcta?</p>
+              <div style={{ display: "flex", gap: 10 }}>
+                <button className="btn-ghost" style={{ flex: 1 }} onClick={() => nextWrite(false)}>✗ No del todo</button>
+                <button className="btn-primary" style={{ flex: 1 }} onClick={() => nextWrite(true)}>✓ Sí, lo sabía</button>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  // ── FASE 3: TRIVIA ──
+  if (phase === "trivia") {
+    return (
+      <div>
+        <TopBar onBack={onBack} title="Flashcards · Trivia" subtitle={book.title} />
+        <div style={{ padding: "20px 16px" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+            <span className="chip">Pregunta {currentIndex + 1} de {REVIEW_COUNT}</span>
+            <span style={{ fontSize: 12, color: "#888" }}>Fase 3: Trivia</span>
+          </div>
+
+          <p style={{ fontSize: 17, fontWeight: 600, color: "#111", lineHeight: 1.5, marginBottom: 20 }}>{currentCard.front}</p>
+
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {triviaOptions.map((opt, i) => {
+              const isCorrect = opt === currentCard.back;
+              const isPicked = triviaChosen === opt;
+              let bg = "#fff";
+              let border = "#e0e0e0";
+              let color = "#111";
+              if (triviaAnswered) {
+                if (isCorrect) { bg = "#e8f5e9"; border = "#2a7a2a"; color = "#2a7a2a"; }
+                else if (isPicked) { bg = "#fde8e8"; border = "#cc2200"; color = "#cc2200"; }
+                else { color = "#aaa"; }
+              } else if (isPicked) { border = "#0066cc"; bg = "#e8f0ff"; }
+              return (
+                <button
+                  key={i}
+                  onClick={() => answerTrivia(opt)}
+                  disabled={triviaAnswered}
+                  style={{ padding: "14px 16px", background: bg, border: `1px solid ${border}`, borderRadius: 6, textAlign: "left", fontSize: 14, color, cursor: triviaAnswered ? "default" : "pointer", display: "flex", justifyContent: "space-between", alignItems: "center" }}
+                >
+                  <span>{opt}</span>
+                  {triviaAnswered && isCorrect && <span>✓</span>}
+                  {triviaAnswered && isPicked && !isCorrect && <span>✗</span>}
+                </button>
+              );
+            })}
+          </div>
+
+          {triviaAnswered && (
+            <button className="btn-primary" style={{ width: "100%", marginTop: 20 }} onClick={nextTrivia}>
+              {currentIndex + 1 < REVIEW_COUNT ? "Siguiente →" : "Ver resultado →"}
+            </button>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  return null;
 }
 
 /* ═══════ FORO ═══════ */
@@ -887,11 +1004,11 @@ function ForumScreen({ book, onBack, user }) {
   }
 
   return (
-    <div style={{ animation: "fadeIn 0.4s" }}>
+    <div style={{  }}>
       <TopBar onBack={onBack} title="Foro" subtitle={book.title} />
-      <div style={{ padding: "28px 24px", paddingBottom: 100 }}>
-        <h2 className="serif" style={{ fontSize: 24, fontWeight: 700, color: "var(--tinta)", marginBottom: 8 }}>Preguntas y dudas</h2>
-        <p style={{ fontSize: 13, color: "var(--tinta2)", lineHeight: 1.7, marginBottom: 28 }}>
+      <div style={{ padding: "20px 16px", paddingBottom: 100 }}>
+        <h2  style={{ fontSize: 24, fontWeight: 700, color: "#111111", marginBottom: 8 }}>Preguntas y dudas</h2>
+        <p style={{ fontSize: 13, color: "#555555", lineHeight: 1.7, marginBottom: 28 }}>
           ¿No entendiste algo? Pregunta. Otros lectores responden.
         </p>
 
@@ -901,26 +1018,26 @@ function ForumScreen({ book, onBack, user }) {
             value={question}
             onChange={(e) => setQuestion(e.target.value)}
             placeholder="¿Qué no entendiste del libro? Ej: No entendí por qué Winston traiciona a Julia..."
-            style={{ width: "100%", minHeight: 100, padding: "16px", background: "var(--marfil)", border: "1px solid var(--linea)", borderRadius: 2, fontFamily: "Inter, sans-serif", fontSize: 14, lineHeight: 1.6, color: "var(--tinta)", resize: "vertical", outline: "none" }}
-            onFocus={(e) => (e.target.style.borderColor = "var(--vino)")}
-            onBlur={(e) => (e.target.style.borderColor = "var(--linea)")}
+            style={{ width: "100%", minHeight: 100, padding: "16px", background: "#ffffff", border: "1px solid #e0e0e0", borderRadius: 6, fontFamily: "Inter, sans-serif", fontSize: 14, lineHeight: 1.6, color: "#111111", resize: "vertical", outline: "none" }}
+            onFocus={(e) => (e.target.style.borderColor = "#0066cc")}
+            onBlur={(e) => (e.target.style.borderColor = "#e0e0e0")}
           />
-          <div style={{ fontSize: 11, color: "var(--sepia)", marginTop: 6, marginBottom: 12, textAlign: "right" }}>{question.length} caracteres · mínimo 10</div>
+          <div style={{ fontSize: 11, color: "#888888", marginTop: 6, marginBottom: 12, textAlign: "right" }}>{question.length} caracteres · mínimo 10</div>
           <button className="btn-primary" disabled={question.trim().length < 10} style={{ width: "100%" }} onClick={submitQuestion}>Publicar pregunta</button>
         </div>
 
         {/* Lista de preguntas */}
         {loading ? (
-          <div style={{ textAlign: "center", padding: "40px", color: "var(--sepia)" }}>Cargando preguntas...</div>
+          <div style={{ textAlign: "center", padding: "40px", color: "#888888" }}>Cargando preguntas...</div>
         ) : (
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 18 }}>
-              <span style={{ flex: 1, height: 1, background: "var(--linea)" }} />
-              <span className="serif-italic" style={{ fontSize: 13, fontStyle: "italic", color: "var(--tinta2)" }}>Preguntas recientes</span>
-              <span style={{ flex: 1, height: 1, background: "var(--linea)" }} />
+              <span style={{ flex: 1, height: 1, background: "#e0e0e0" }} />
+              <span  style={{ fontSize: 13, color: "#555555" }}>Preguntas recientes</span>
+              <span style={{ flex: 1, height: 1, background: "#e0e0e0" }} />
             </div>
             {threads.length === 0 && (
-              <p className="serif-italic" style={{ textAlign: "center", color: "var(--sepia)", fontSize: 13, fontStyle: "italic", padding: "20px" }}>
+              <p  style={{ textAlign: "center", color: "#888888", fontSize: 13, padding: "20px" }}>
                 Sé el primero en preguntar algo sobre este libro.
               </p>
             )}
@@ -928,14 +1045,14 @@ function ForumScreen({ book, onBack, user }) {
               <div
                 key={thread.id}
                 onClick={() => setOpenThread(thread)}
-                style={{ marginBottom: 14, padding: "16px 18px", background: "var(--marfil)", border: "1px solid var(--linea)", borderRadius: 2, cursor: "pointer", animation: `fadeUp 0.4s ${i * 0.1}s both` }}
-                onMouseEnter={(e) => (e.currentTarget.style.borderColor = "var(--vino)")}
-                onMouseLeave={(e) => (e.currentTarget.style.borderColor = "var(--linea)")}
+                style={{ marginBottom: 14, padding: "16px 18px", background: "#ffffff", border: "1px solid #e0e0e0", borderRadius: 6, cursor: "pointer",  }}
+                onMouseEnter={(e) => (e.currentTarget.style.borderColor = "#0066cc")}
+                onMouseLeave={(e) => (e.currentTarget.style.borderColor = "#e0e0e0")}
               >
-                <p className="serif" style={{ fontSize: 15, fontWeight: 500, color: "var(--tinta)", lineHeight: 1.6, marginBottom: 10 }}>{thread.question}</p>
+                <p  style={{ fontSize: 15, fontWeight: 500, color: "#111111", lineHeight: 1.6, marginBottom: 10 }}>{thread.question}</p>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <div className="serif-italic" style={{ fontSize: 12, fontStyle: "italic", color: "var(--sepia)" }}>— {thread.author}</div>
-                  <div style={{ fontSize: 11, color: "var(--vino)", letterSpacing: 0.5 }}>
+                  <div  style={{ fontSize: 12, color: "#888888" }}>— {thread.author}</div>
+                  <div style={{ fontSize: 11, color: "#0066cc", letterSpacing: 0 }}>
                     {thread.replyCount || 0} respuestas · Ver →
                   </div>
                 </div>
@@ -974,16 +1091,31 @@ function ThreadScreen({ book, thread, onBack, user, forumId }) {
     }
   }
 
+  async function toggleReplyLike(replyId, likedBy) {
+    const userId = user?.uid || "anon";
+    const alreadyLiked = (likedBy || []).includes(userId);
+    const replyRef = doc(db, "forums", forumId, "threads", thread.id, "replies", replyId);
+    try {
+      if (alreadyLiked) {
+        await updateDoc(replyRef, { likes: increment(-1), likedBy: (likedBy||[]).filter(id=>id!==userId) });
+      } else {
+        await updateDoc(replyRef, { likes: increment(1), likedBy: [...(likedBy||[]), userId] });
+      }
+      await loadReplies();
+    } catch(err) { console.error("Error like reply:", err); }
+  }
+
   async function submitReply() {
     if (reply.trim().length < 5) return;
     try {
-      // Guardar la respuesta en la subcolección
       await addDoc(
         collection(db, "forums", forumId, "threads", thread.id, "replies"),
         {
           text: reply.trim(),
           author: user?.email || "Invitado",
           timestamp: serverTimestamp(),
+          likes: 0,
+          likedBy: [],
         }
       );
       // Actualizar el contador de respuestas en el hilo
@@ -999,31 +1131,39 @@ function ThreadScreen({ book, thread, onBack, user, forumId }) {
   }
 
   return (
-    <div style={{ animation: "fadeIn 0.4s" }}>
+    <div style={{  }}>
       <TopBar onBack={onBack} title="Respuestas" subtitle={book.title} />
-      <div style={{ padding: "28px 24px", paddingBottom: 100 }}>
+      <div style={{ padding: "20px 16px", paddingBottom: 100 }}>
 
         {/* Pregunta original */}
-        <div style={{ padding: "20px", background: "var(--marfil)", borderLeft: "3px solid var(--vino)", marginBottom: 28 }}>
-          <div style={{ fontSize: 10, letterSpacing: 2, color: "var(--sepia)", textTransform: "uppercase", marginBottom: 8 }}>Pregunta</div>
-          <p className="serif" style={{ fontSize: 17, fontWeight: 500, color: "var(--tinta)", lineHeight: 1.5, marginBottom: 10 }}>{thread.question}</p>
-          <div className="serif-italic" style={{ fontSize: 12, fontStyle: "italic", color: "var(--sepia)" }}>— {thread.author}</div>
+        <div style={{ padding: "20px", background: "#ffffff", borderLeft: "3px solid #0066cc", marginBottom: 28 }}>
+          <div style={{ fontSize: 10, letterSpacing: 0, color: "#888888", textTransform: "uppercase", marginBottom: 8 }}>Pregunta</div>
+          <p  style={{ fontSize: 17, fontWeight: 500, color: "#111111", lineHeight: 1.5, marginBottom: 10 }}>{thread.question}</p>
+          <div  style={{ fontSize: 12, color: "#888888" }}>— {thread.author}</div>
         </div>
 
         {/* Respuestas existentes */}
         {loading ? (
-          <div style={{ textAlign: "center", padding: "20px", color: "var(--sepia)" }}>Cargando respuestas...</div>
+          <div style={{ textAlign: "center", padding: "20px", color: "#888888" }}>Cargando respuestas...</div>
         ) : (
           <div style={{ marginBottom: 28 }}>
             {replies.length === 0 && (
-              <p className="serif-italic" style={{ textAlign: "center", color: "var(--sepia)", fontSize: 13, fontStyle: "italic", padding: "20px" }}>
+              <p  style={{ textAlign: "center", color: "#888888", fontSize: 13, padding: "20px" }}>
                 Nadie ha respondido aún. Sé el primero.
               </p>
             )}
             {replies.map((r, i) => (
-              <div key={r.id} style={{ marginBottom: 12, padding: "14px 16px", background: "var(--marfil)", border: "1px solid var(--linea)", borderRadius: 2, animation: `fadeUp 0.3s ${i * 0.08}s both` }}>
-                <p style={{ fontSize: 14, color: "var(--tinta)", lineHeight: 1.6, marginBottom: 8 }}>{r.text}</p>
-                <div className="serif-italic" style={{ fontSize: 11, fontStyle: "italic", color: "var(--sepia)" }}>— {r.author}</div>
+              <div key={r.id} style={{ marginBottom: 12, padding: "14px 16px", background: "#ffffff", border: "1px solid #e0e0e0", borderRadius: 6 }}>
+                <p style={{ fontSize: 14, color: "#111", lineHeight: 1.6, marginBottom: 8 }}>{r.text}</p>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <span style={{ fontSize: 11, color: "#888" }}>— {r.author}</span>
+                  <button
+                    onClick={() => toggleReplyLike(r.id, r.likedBy)}
+                    style={{ background: (r.likedBy||[]).includes(user?.uid||"anon") ? "#e8f0ff" : "transparent", border: `1px solid ${(r.likedBy||[]).includes(user?.uid||"anon") ? "#0066cc" : "#e0e0e0"}`, borderRadius: 20, padding: "3px 10px", fontSize: 12, color: (r.likedBy||[]).includes(user?.uid||"anon") ? "#0066cc" : "#888", cursor: "pointer" }}
+                  >
+                    👍 {r.likes || 0}
+                  </button>
+                </div>
               </div>
             ))}
           </div>
@@ -1031,19 +1171,19 @@ function ThreadScreen({ book, thread, onBack, user, forumId }) {
 
         {/* Escribir respuesta */}
         <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 14 }}>
-          <span style={{ flex: 1, height: 1, background: "var(--linea)" }} />
-          <span className="serif-italic" style={{ fontSize: 13, fontStyle: "italic", color: "var(--tinta2)" }}>Tu respuesta</span>
-          <span style={{ flex: 1, height: 1, background: "var(--linea)" }} />
+          <span style={{ flex: 1, height: 1, background: "#e0e0e0" }} />
+          <span  style={{ fontSize: 13, color: "#555555" }}>Tu respuesta</span>
+          <span style={{ flex: 1, height: 1, background: "#e0e0e0" }} />
         </div>
         <textarea
           value={reply}
           onChange={(e) => setReply(e.target.value)}
           placeholder="Escribe tu respuesta..."
-          style={{ width: "100%", minHeight: 100, padding: "16px", background: "var(--marfil)", border: "1px solid var(--linea)", borderRadius: 2, fontFamily: "Inter, sans-serif", fontSize: 14, lineHeight: 1.6, color: "var(--tinta)", resize: "vertical", outline: "none" }}
-          onFocus={(e) => (e.target.style.borderColor = "var(--vino)")}
-          onBlur={(e) => (e.target.style.borderColor = "var(--linea)")}
+          style={{ width: "100%", minHeight: 100, padding: "16px", background: "#ffffff", border: "1px solid #e0e0e0", borderRadius: 6, fontFamily: "Inter, sans-serif", fontSize: 14, lineHeight: 1.6, color: "#111111", resize: "vertical", outline: "none" }}
+          onFocus={(e) => (e.target.style.borderColor = "#0066cc")}
+          onBlur={(e) => (e.target.style.borderColor = "#e0e0e0")}
         />
-        <div style={{ fontSize: 11, color: "var(--sepia)", marginTop: 6, marginBottom: 12, textAlign: "right" }}>{reply.length} caracteres · mínimo 5</div>
+        <div style={{ fontSize: 11, color: "#888888", marginTop: 6, marginBottom: 12, textAlign: "right" }}>{reply.length} caracteres · mínimo 5</div>
         <button className="btn-primary" disabled={reply.trim().length < 5} style={{ width: "100%" }} onClick={submitReply}>
           Publicar respuesta
         </button>
@@ -1083,6 +1223,8 @@ function DebateScreen({ book, debate, onBack, user }) {
         text: argument.trim(),
         author: user?.email || "Invitado",
         timestamp: serverTimestamp(),
+        likes: 0,
+        likedBy: [],
       });
       setSubmitted(true);
       await loadDebateArgs();
@@ -1092,12 +1234,34 @@ function DebateScreen({ book, debate, onBack, user }) {
     }
   }
 
+  async function toggleLike(argId, likedBy) {
+    const userId = user?.uid || "anon";
+    const alreadyLiked = (likedBy || []).includes(userId);
+    const argRef = doc(db, "debates", debate.id, "arguments", argId);
+    try {
+      if (alreadyLiked) {
+        await updateDoc(argRef, {
+          likes: increment(-1),
+          likedBy: (likedBy || []).filter(id => id !== userId),
+        });
+      } else {
+        await updateDoc(argRef, {
+          likes: increment(1),
+          likedBy: [...(likedBy || []), userId],
+        });
+      }
+      await loadDebateArgs();
+    } catch (err) {
+      console.error("Error en like:", err);
+    }
+  }
+
   return (
-    <div style={{ animation: "fadeIn 0.4s" }}>
+    <div style={{  }}>
       <TopBar onBack={onBack} title="Debate" subtitle={book.title} />
-      <div style={{ padding: "28px 24px", paddingBottom: 100 }}>
-        <h1 className="serif" style={{ fontSize: 28, fontWeight: 700, color: "var(--tinta)", lineHeight: 1.2, letterSpacing: "-0.01em", marginBottom: 14 }}>❝ {debate.question}</h1>
-        <p className="serif-italic" style={{ fontSize: 14, fontStyle: "italic", color: "var(--tinta2)", lineHeight: 1.6, marginBottom: 28 }}>{debate.context}</p>
+      <div style={{ padding: "20px 16px", paddingBottom: 100 }}>
+        <h1  style={{ fontSize: 28, fontWeight: 700, color: "#111111", lineHeight: 1.2, letterSpacing: "normal", marginBottom: 14 }}>❝ {debate.question}</h1>
+        <p  style={{ fontSize: 14, color: "#555555", lineHeight: 1.6, marginBottom: 28 }}>{debate.context}</p>
 
         {!submitted ? (
           <>
@@ -1105,40 +1269,52 @@ function DebateScreen({ book, debate, onBack, user }) {
               value={argument}
               onChange={(e) => setArgument(e.target.value)}
               placeholder="Escribe tu lectura. Defiéndela con razones del libro..."
-              style={{ width: "100%", minHeight: 160, padding: "16px", background: "var(--marfil)", border: "1px solid var(--linea)", borderRadius: 2, fontFamily: "Fraunces, Georgia, serif", fontSize: 15, lineHeight: 1.6, color: "var(--tinta)", resize: "vertical", outline: "none" }}
-              onFocus={(e) => (e.target.style.borderColor = "var(--vino)")}
-              onBlur={(e) => (e.target.style.borderColor = "var(--linea)")}
+              style={{ width: "100%", minHeight: 160, padding: "16px", background: "#ffffff", border: "1px solid #e0e0e0", borderRadius: 6, fontFamily: "system-ui, sans-serif", fontSize: 15, lineHeight: 1.6, color: "#111111", resize: "vertical", outline: "none" }}
+              onFocus={(e) => (e.target.style.borderColor = "#0066cc")}
+              onBlur={(e) => (e.target.style.borderColor = "#e0e0e0")}
             />
-            <div style={{ fontSize: 11, color: "var(--sepia)", marginTop: 6, marginBottom: 20, textAlign: "right" }}>{argument.length} caracteres · mínimo 20</div>
+            <div style={{ fontSize: 11, color: "#888888", marginTop: 6, marginBottom: 20, textAlign: "right" }}>{argument.length} caracteres · mínimo 20</div>
             <button className="btn-primary" disabled={argument.trim().length < 20} style={{ width: "100%" }} onClick={submit}>Publicar argumento</button>
           </>
         ) : (
-          <div style={{ padding: "20px", background: "var(--marfil)", borderLeft: "3px solid var(--verde)", marginBottom: 24, animation: "inkDrop 0.4s" }}>
-            <div className="serif-italic" style={{ fontSize: 11, fontStyle: "italic", color: "var(--verde)", marginBottom: 8, letterSpacing: 0.5 }}>Tu argumento · publicado</div>
-            <p className="serif" style={{ fontSize: 15, color: "var(--tinta)", lineHeight: 1.6 }}>{argument}</p>
+          <div style={{ padding: "20px", background: "#ffffff", borderLeft: "3px solid #2a7a2a", marginBottom: 24,  }}>
+            <div  style={{ fontSize: 11, color: "#2a7a2a", marginBottom: 8, letterSpacing: 0 }}>Tu argumento · publicado</div>
+            <p  style={{ fontSize: 15, color: "#111111", lineHeight: 1.6 }}>{argument}</p>
           </div>
         )}
 
         {loading ? (
-          <div style={{ textAlign: "center", padding: "40px", color: "var(--sepia)" }}>Cargando argumentos...</div>
+          <div style={{ textAlign: "center", padding: "40px", color: "#888888" }}>Cargando argumentos...</div>
         ) : (
           <div style={{ marginTop: 36 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 18 }}>
-              <span style={{ flex: 1, height: 1, background: "var(--linea)" }} />
-              <span className="serif-italic" style={{ fontSize: 13, fontStyle: "italic", color: "var(--tinta2)" }}>Otros lectores</span>
-              <span style={{ flex: 1, height: 1, background: "var(--linea)" }} />
+              <span style={{ flex: 1, height: 1, background: "#e0e0e0" }} />
+              <span  style={{ fontSize: 13, color: "#555555" }}>Otros lectores</span>
+              <span style={{ flex: 1, height: 1, background: "#e0e0e0" }} />
             </div>
             {debateArgs.length === 0 && (
-              <p className="serif-italic" style={{ textAlign: "center", color: "var(--sepia)", fontSize: 13, fontStyle: "italic", padding: "20px" }}>
+              <p  style={{ textAlign: "center", color: "#888888", fontSize: 13, padding: "20px" }}>
                 Sé el primero en argumentar sobre esta pregunta.
               </p>
             )}
-            {debateArgs.map((arg, i) => (
-              <div key={arg.id} style={{ marginBottom: 14, padding: "16px 18px", background: "var(--marfil)", border: "1px solid var(--linea)", borderRadius: 2, animation: `fadeUp 0.4s ${i * 0.1}s both` }}>
-                <p className="serif" style={{ fontSize: 14, color: "var(--tinta)", lineHeight: 1.6, marginBottom: 10 }}>{arg.text}</p>
-                <div className="serif-italic" style={{ fontSize: 12, fontStyle: "italic", color: "var(--sepia)" }}>— {arg.author}</div>
+            {debateArgs.sort((a,b) => (b.likes||0)-(a.likes||0)).map((arg, i) => {
+              const userId = user?.uid || "anon";
+              const liked = (arg.likedBy || []).includes(userId);
+              return (
+              <div key={arg.id} style={{ marginBottom: 14, padding: "16px 18px", background: "#ffffff", border: "1px solid #e0e0e0", borderRadius: 6 }}>
+                <p style={{ fontSize: 14, color: "#111", lineHeight: 1.6, marginBottom: 10 }}>{arg.text}</p>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <span style={{ fontSize: 12, color: "#888" }}>— {arg.author}</span>
+                  <button
+                    onClick={() => toggleLike(arg.id, arg.likedBy)}
+                    style={{ background: liked ? "#e8f0ff" : "transparent", border: `1px solid ${liked ? "#0066cc" : "#e0e0e0"}`, borderRadius: 20, padding: "4px 12px", fontSize: 13, color: liked ? "#0066cc" : "#888", cursor: "pointer", display: "flex", alignItems: "center", gap: 4 }}
+                  >
+                    👍 {arg.likes || 0}
+                  </button>
+                </div>
               </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
@@ -1184,16 +1360,16 @@ function ProfileScreen({ streak, points, completedBooks, user, onLogout }) {
   const completedBookObjects = BOOKS.filter((b) => completedBooks.includes(b.id));
 
   return (
-    <div style={{ animation: "fadeIn 0.4s" }}>
-      <div style={{ padding: "36px 24px 24px" }}>
-        <span className="rule-vino" />
-        <h1 className="serif" style={{ fontSize: 36, fontWeight: 900, color: "var(--tinta)", lineHeight: 1, letterSpacing: "-0.02em" }}>Tu lectura</h1>
+    <div style={{  }}>
+      <div style={{ padding: "20px 16px" }}>
+        
+        <h1  style={{ fontSize: 36, fontWeight: 900, color: "#111111", lineHeight: 1, letterSpacing: "normal" }}>Tu lectura</h1>
       </div>
 
-      <div style={{ padding: "0 20px", paddingBottom: 100 }}>
+      <div style={{ padding: "0 16px", paddingBottom: 100 }}>
         {!user ? (
-          <div style={{ marginBottom: 20, padding: "20px", background: "var(--marfil)", border: "1px solid var(--linea)" }}>
-            <p style={{ fontSize: 13, color: "var(--tinta2)", lineHeight: 1.7, marginBottom: 14 }}>
+          <div style={{ marginBottom: 20, padding: "20px", background: "#ffffff", border: "1px solid #e0e0e0" }}>
+            <p style={{ fontSize: 13, color: "#555555", lineHeight: 1.7, marginBottom: 14 }}>
               Inicia sesión para sincronizar tu racha y puntos en la nube.
             </p>
             {!showLogin && !showSignup && (
@@ -1203,22 +1379,22 @@ function ProfileScreen({ streak, points, completedBooks, user, onLogout }) {
               </div>
             )}
             {(showLogin || showSignup) && (
-              <div style={{ animation: "fadeIn 0.3s" }}>
+              <div style={{  }}>
                 <input
                   type="email"
                   placeholder="Email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  style={{ width: "100%", padding: "12px", marginBottom: 8, border: "1px solid var(--linea)", borderRadius: 2, fontSize: 14, fontFamily: "Inter, sans-serif" }}
+                  style={{ width: "100%", padding: "12px", marginBottom: 8, border: "1px solid #e0e0e0", borderRadius: 6, fontSize: 14, fontFamily: "Inter, sans-serif" }}
                 />
                 <input
                   type="password"
                   placeholder="Contraseña (min 6 caracteres)"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  style={{ width: "100%", padding: "12px", marginBottom: 8, border: "1px solid var(--linea)", borderRadius: 2, fontSize: 14, fontFamily: "Inter, sans-serif" }}
+                  style={{ width: "100%", padding: "12px", marginBottom: 8, border: "1px solid #e0e0e0", borderRadius: 6, fontSize: 14, fontFamily: "Inter, sans-serif" }}
                 />
-                {error && <div style={{ color: "var(--rojo)", fontSize: 12, marginBottom: 8 }}>{error}</div>}
+                {error && <div style={{ color: "#cc2200", fontSize: 12, marginBottom: 8 }}>{error}</div>}
                 <div style={{ display: "flex", gap: 8 }}>
                   <button className="btn-primary" onClick={showLogin ? handleLogin : handleSignup} style={{ flex: 1 }}>
                     {showLogin ? "Entrar" : "Crear"}
@@ -1229,8 +1405,8 @@ function ProfileScreen({ streak, points, completedBooks, user, onLogout }) {
             )}
           </div>
         ) : (
-          <div style={{ marginBottom: 20, padding: "20px", background: "var(--marfil)", border: "1px solid var(--verde)" }}>
-            <p style={{ fontSize: 13, color: "var(--tinta)", marginBottom: 12 }}>✓ Sesión iniciada como: <strong>{user.email}</strong></p>
+          <div style={{ marginBottom: 20, padding: "20px", background: "#ffffff", border: "1px solid #2a7a2a" }}>
+            <p style={{ fontSize: 13, color: "#111111", marginBottom: 12 }}>✓ Sesión iniciada como: <strong>{user.email}</strong></p>
             <button className="btn-ghost" onClick={handleLogout} style={{ width: "100%" }}>Cerrar sesión</button>
           </div>
         )}
@@ -1240,23 +1416,23 @@ function ProfileScreen({ streak, points, completedBooks, user, onLogout }) {
           <StatCard label="Puntos ganados" value={points} />
         </div>
 
-        <div style={{ marginTop: 28, padding: "20px 22px", background: "var(--marfil)", border: "1px solid var(--linea)", marginBottom: 32 }}>
-          <div style={{ fontSize: 10, letterSpacing: 2, color: "var(--sepia)", textTransform: "uppercase", marginBottom: 12 }}>
+        <div style={{ marginTop: 28, padding: "20px 22px", background: "#ffffff", border: "1px solid #e0e0e0", marginBottom: 32 }}>
+          <div style={{ fontSize: 10, letterSpacing: 0, color: "#888888", textTransform: "uppercase", marginBottom: 12 }}>
             Libros practicados · {completedBookObjects.length} de {BOOKS.length}
           </div>
           {completedBookObjects.length === 0 ? (
-            <p className="serif-italic" style={{ fontSize: 14, fontStyle: "italic", color: "var(--tinta2)", lineHeight: 1.6 }}>
+            <p  style={{ fontSize: 14, color: "#555555", lineHeight: 1.6 }}>
               Aún no has completado ningún libro.
             </p>
           ) : (
             <ul style={{ listStyle: "none" }}>
               {completedBookObjects.map((b) => (
-                <li key={b.id} style={{ padding: "10px 0", borderBottom: "1px solid var(--linea)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <li key={b.id} style={{ padding: "10px 0", borderBottom: "1px solid #e0e0e0", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                   <div>
-                    <div className="serif" style={{ fontSize: 15, fontWeight: 500, color: "var(--tinta)" }}>{b.title}</div>
-                    <div style={{ fontSize: 11, color: "var(--sepia)", letterSpacing: 0.5 }}>{b.author}</div>
+                    <div  style={{ fontSize: 15, fontWeight: 500, color: "#111111" }}>{b.title}</div>
+                    <div style={{ fontSize: 11, color: "#888888", letterSpacing: 0 }}>{b.author}</div>
                   </div>
-                  <span style={{ color: "var(--verde)", fontSize: 14 }}>✓</span>
+                  <span style={{ color: "#2a7a2a", fontSize: 14 }}>✓</span>
                 </li>
               ))}
             </ul>
@@ -1269,10 +1445,10 @@ function ProfileScreen({ streak, points, completedBooks, user, onLogout }) {
 
 function StatCard({ label, value, suffix }) {
   return (
-    <div style={{ padding: "18px 16px", background: "var(--marfil)", border: "1px solid var(--linea)" }}>
-      <div style={{ fontSize: 9, letterSpacing: 2, color: "var(--sepia)", textTransform: "uppercase", marginBottom: 8 }}>{label}</div>
-      <div className="serif" style={{ fontSize: 40, fontWeight: 900, color: "var(--vino)", lineHeight: 1, letterSpacing: "-0.02em" }}>{value}</div>
-      {suffix && <div style={{ fontSize: 11, color: "var(--sepia)", marginTop: 4 }}>{suffix}</div>}
+    <div style={{ padding: "18px 16px", background: "#ffffff", border: "1px solid #e0e0e0" }}>
+      <div style={{ fontSize: 9, letterSpacing: 0, color: "#888888", textTransform: "uppercase", marginBottom: 8 }}>{label}</div>
+      <div  style={{ fontSize: 40, fontWeight: 900, color: "#0066cc", lineHeight: 1, letterSpacing: "normal" }}>{value}</div>
+      {suffix && <div style={{ fontSize: 11, color: "#888888", marginTop: 4 }}>{suffix}</div>}
     </div>
   );
 }
