@@ -1,4 +1,3 @@
-// 1. PRIMERO TODOS LOS IMPORTS (Fuera de cualquier función)
 import { useState, useEffect, useMemo } from "react";
 import { initializeApp } from "firebase/app";
 import {
@@ -10,29 +9,19 @@ import {
   serverTimestamp, doc, setDoc, getDoc, increment, updateDoc
 } from "firebase/firestore";
 
-// 2. LUEGO TU COMPONENTE PRINCIPAL
-export default function App() {
-  
-  // 3. AQUÍ YA VAN TUS CONFIGURACIONES Y LÓGICA
-  const firebaseConfig = {
-    apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-    authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-    projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-    storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-    messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-    appId: import.meta.env.VITE_FIREBASE_APP_ID,
-    measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
-  };
+const firebaseConfig = {
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
+};
 
-  const fbApp = initializeApp(firebaseConfig);
-  const auth = getAuth(fbApp);
-  const db = getFirestore(fbApp);
-
-  /* ================================================================
-    SISTEMA DE PREGUNTAS...
-  ================================================================ */
-  
-  // ... resto de tu código
+const fbApp = initializeApp(firebaseConfig);
+const auth = getAuth(fbApp);
+const db = getFirestore(fbApp);
 
 /* ================================================================
   SISTEMA DE PREGUNTAS
@@ -1988,5 +1977,4 @@ function ProfileScreen({ streak, points, completedBooks, user, onLogout }) {
       </div>
     </div>
   );
-}
 }
