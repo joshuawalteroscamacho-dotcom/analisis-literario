@@ -10,13 +10,13 @@ import {
 } from "firebase/firestore";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBv_ar9RlDchiq14xf-RMp420gttL2sCPE",
-  authDomain: "analisis-literario-65346.firebaseapp.com",
-  projectId: "analisis-literario-65346",
-  storageBucket: "analisis-literario-65346.firebasestorage.app",
-  messagingSenderId: "609852450783",
-  appId: "1:609852450783:web:bc2763cec6a263d415466a",
-  measurementId: "G-E1MCNZJRQQ"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
 };
 
 const fbApp = initializeApp(firebaseConfig);
