@@ -1417,3 +1417,4 @@ const BOOKS = [
     forumId:"senormoscas-forum"
   },
 ];
+export default App;
