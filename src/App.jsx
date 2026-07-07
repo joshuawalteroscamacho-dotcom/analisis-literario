@@ -1977,8 +1977,4 @@ function ProfileScreen({ streak, points, completedBooks, user, onLogout }) {
       </div>
     </div>
   );
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> b88ab48fa963ea5e4b578174fb97be0dee9a3d72
