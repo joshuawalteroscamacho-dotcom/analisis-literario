@@ -8,6 +8,9 @@ import {
   getFirestore, collection, addDoc, getDocs, query, orderBy,
   serverTimestamp, doc, setDoc, getDoc, increment, updateDoc, arrayUnion, arrayRemove
 } from "firebase/firestore";
+import badgeGranja from "@/assets/commies.jpg";
+import badge1984   from "@/assets/bigbrother.jpg";
+import badgeCafe   from "@/assets/cafe.png";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBv_ar9RlDchiq14xf-RMp420gttL2sCPE",
@@ -68,7 +71,7 @@ const BOOKS: Book[] = [
   {
     id:"1984", title:"1984", author:"George Orwell", year:1949,
     genre:"Distopía política", tagline:"El Gran Hermano te observa.",
-    color:"#8B1A1A", spine:"#6B1212", badgeIcon:"👁️", badgeName:"Vigilante",
+    color:"#8B1A1A", spine:"#6B1212", badgeIcon: badge1984, badgeName:"Vigilante",
     questions:[
       {difficulty:"easy",mode:"critical",concept:"Personajes",text:"¿Quién es Winston Smith?",options:["El líder del Partido","Un empleado del Ministerio de la Verdad que guarda pensamientos rebeldes","El jefe de la Policía del Pensamiento","Un ciudadano de Eurasia"],correct:1,feedback:"Winston trabaja reescribiendo la historia para el Partido, aunque en secreto la cuestiona.",feedbackAlt:"Winston Smith es el protagonista: un empleado del Ministerio de la Verdad que internamente se rebela."},
       {difficulty:"easy",mode:"fragment",concept:"Lema del Partido",text:"Lee el fragmento. ¿Qué efecto busca el lema del Partido?",fragment:"LA GUERRA ES LA PAZ. LA LIBERTAD ES LA ESCLAVITUD. LA IGNORANCIA ES LA FUERZA.",options:["Inspirar con ideales positivos","Paralizar el pensamiento crítico mediante contradicciones aceptadas como verdad","Resumir honestamente la filosofía del gobierno","Advertir a los enemigos del Partido"],correct:1,feedback:"El lema usa contradicciones para que el ciudadano no pueda razonar en contra.",feedbackAlt:"El lema es un ejemplo de 'doblepensar': aceptar dos ideas opuestas como verdades simultáneas."},
@@ -93,7 +96,7 @@ const BOOKS: Book[] = [
   {
     id:"granja", title:"Rebelión en la granja", author:"George Orwell", year:1945,
     genre:"Fábula política", tagline:"Todos son iguales. Algunos más que otros.",
-    color:"#2D5A1B", spine:"#1E3D12", badgeIcon:"🐷", badgeName:"Camarada",
+    color:"#2D5A1B", spine:"#1E3D12", badgeIcon: badgeGranja, badgeName:"Camarada",
     questions:[
       {difficulty:"easy",mode:"critical",concept:"Personajes",text:"¿Quién toma el control de la granja después de expulsar a Snowball?",options:["Boxer","Napoleón","Squealer","El Viejo Mayor"],correct:1,feedback:"Napoleón usa perros amaestrados para expulsar a Snowball y se convierte en el dictador.",feedbackAlt:"Napoleón representa a Stalin."},
       {difficulty:"easy",mode:"critical",concept:"El Viejo Mayor",text:"¿Qué papel cumple El Viejo Mayor en la novela?",options:["Es el primer dictador de la granja","Inspira la rebelión con su discurso sobre la igualdad animal antes de morir","Es el cerdo que inventa los Siete Mandamientos","Es el líder de los perros guardianes"],correct:1,feedback:"El Viejo Mayor es Karl Marx y Lenin: la figura revolucionaria fundadora cuya visión es traicionada.",feedbackAlt:"Su muerte antes de la revolución es simbólica."},
@@ -117,7 +120,7 @@ const BOOKS: Book[] = [
   {
     id:"chocolate", title:"Como agua para chocolate", author:"Laura Esquivel", year:1989,
     genre:"Realismo mágico", tagline:"Las emociones se sirven a la mesa.",
-    color:"#C87941", spine:"#9B5E30", badgeIcon:"🌶️", badgeName:"Cocinera",
+    color:"#C87941", spine:"#9B5E30", badgeIcon: badgeCafe, badgeName:"Cocinera",
     questions:[
       {difficulty:"easy",mode:"critical",concept:"Conflicto central",text:"¿Por qué Tita no puede casarse con Pedro al inicio?",options:["Pedro no la ama","La tradición obliga a la hija menor a cuidar a la madre hasta su muerte","Tita está comprometida con otra persona","Pedro es demasiado pobre"],correct:1,feedback:"La tradición condena a Tita a una vida de servidumbre y le niega el amor.",feedbackAlt:"La novela critica cómo las tradiciones familiares pueden convertirse en prisiones."},
       {difficulty:"easy",mode:"fragment",concept:"Realismo mágico",text:"¿Qué recurso literario usa Esquivel?",fragment:"Dicen que Tita era tan sensible que desde que estaba en el vientre de su madre lloraba cuando ésta picaba cebolla. Un día los sollozos fueron tan fuertes que provocaron un parto prematuro.",options:["Hipérbole realista","Realismo mágico: los sentimientos tienen efectos físicos reales","Descripción médica precisa","Metáfora sobre la sensibilidad femenina"],correct:1,feedback:"El realismo mágico hace que las emociones tengan efectos físicos literales.",feedbackAlt:"Desde su nacimiento, Tita tiene una conexión mágica con sus emociones."},
@@ -471,7 +474,11 @@ function ProfileScreen({ user, stats, onLoginClick, onLogout }: { user: User|nul
               <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
                 {allBadges.map(({ book, earned: e }) => (
                   <div key={book.id} className="rounded-2xl border p-3 text-center transition-all" style={{ background: e?"#1E0E04":"#120A04", borderColor: e?book.color:"#1A0A04", opacity: e?1:0.5 }}>
-                    <div className="text-3xl mb-1.5">{book.badgeIcon}</div>
+                    {typeof book.badgeIcon === "string" && (book.badgeIcon.includes("/") || book.badgeIcon.startsWith("data:")) ? (
+                      <img src={book.badgeIcon} className="w-10 h-10 object-contain mb-1.5 rounded" />
+                    ) : (
+                      <div className="text-3xl mb-1.5">{book.badgeIcon}</div>
+                    )}
                     <div className="text-xs font-semibold" style={{ color: e?"#D4A853":"#3D1F0A" }}>{book.badgeName}</div>
                     <div className="text-xs mt-0.5 truncate" style={{ color: e?book.color:"#2A1408" }}>{book.title}</div>
                     {e && <div className="text-xs mt-1" style={{ color:"#5C8A3E" }}>✓ Obtenida</div>}
