@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Museo Escolar de la Memoria | Escena A-Frame</title>
+    <!-- Script de A-Frame desde CDN -->
+    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+    <style>
+      body {
+        margin: 0;
+        background: #101728;
+        font-family: Arial, sans-serif;
+      }
+
+      .project-label {
+        position: fixed;
+        z-index: 2;
+        top: 16px;
+        left: 16px;
+        max-width: 320px;
+        padding: 12px 14px;
+        background: rgba(16, 23, 40, 0.88);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: #ffffff;
+        font-size: 12px;
+        line-height: 1.5;
+      }
+
+      .project-label strong {
+        display: block;
+        color: #d9a63d;
+        margin-bottom: 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="project-label">
+      <strong>Placeholder del proyecto A-Frame</strong>
+      Sustituye esta escena por el museo final. Los modelos esperados están en
+      <code>/models/objeto-01.glb</code> y <code>/models/objeto-02.glb</code>.
+    </div>
+
+    <a-scene renderer="colorManagement: true; antialias: true" background="color: #101728">
+      <a-assets>
+        <!-- Activa estas líneas cuando existan los modelos:
+        <a-asset-item id="objeto-01" src="/models/objeto-01.glb"></a-asset-item>
+        <a-asset-item id="objeto-02" src="/models/objeto-02.glb"></a-asset-item>
+        -->
+      </a-assets>
+
+      <a-sky color="#101728"></a-sky>
+      <a-plane color="#202b42" height="30" width="30" rotation="-90 0 0"></a-plane>
+
+      <!-- Pedestal y objeto temporal 01 -->
+      <a-cylinder color="#27334c" radius="1.1" height="0.55" position="-2 0.28 -5"></a-cylinder>
+      <a-entity
+        geometry="primitive: dodecahedron; radius: 0.75"
+        material="color: #df604b; metalness: 0.25; roughness: 0.45"
+        position="-2 1.5 -5"
+        animation="property: rotation; to: 0 360 0; loop: true; dur: 14000; easing: linear"
+      ></a-entity>
+      <!-- Modelo final:
+      <a-gltf-model src="#objeto-01" position="-2 0.6 -5"></a-gltf-model>
+      -->
+
+      <!-- Pedestal y objeto temporal 02 -->
+      <a-cylinder color="#27334c" radius="1.1" height="0.55" position="2 0.28 -5"></a-cylinder>
+      <a-entity
+        geometry="primitive: octahedron; radius: 0.8"
+        material="color: #d9a63d; metalness: 0.25; roughness: 0.45"
+        position="2 1.5 -5"
+        animation="property: rotation; to: 0 360 0; loop: true; dur: 12000; easing: linear"
+      ></a-entity>
+      <!-- Modelo final:
+      <a-gltf-model src="#objeto-02" position="2 0.6 -5"></a-gltf-model>
+      -->
+
+      <a-text value="OBJETO 01" align="center" color="#ffffff" width="4" position="-2 2.8 -5"></a-text>
+      <a-text value="OBJETO 02" align="center" color="#ffffff" width="4" position="2 2.8 -5"></a-text>
+
+      <a-light type="ambient" color="#8ea3bd" intensity="0.7"></a-light>
+      <a-light type="point" color="#df604b" intensity="1" position="-3 5 0"></a-light>
+      <a-light type="point" color="#d9a63d" intensity="1" position="3 5 0"></a-light>
+
+      <a-entity position="0 1.6 2">
+        <a-camera wasd-controls="acceleration: 18" look-controls></a-camera>
+      </a-entity>
+    </a-scene>
+  </body>
+</html>
